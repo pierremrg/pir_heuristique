@@ -1,10 +1,10 @@
+import java.util.List;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -24,9 +24,9 @@ public class Tournament {
 	// TODO Gérer si classes trop grandes par rapport au nombre d'élèves --> blocage
 //	private final int[] STUDENTS_NUMBER = {3, 4, 4, 4, 3, 3, 2,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,100};
 //	private final int[] STUDENTS_NUMBER = {25,25,25,25,25,25,25,25,25,25,25,25,25};
-//	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(List.of(15,20,18,21,28,25,16,27,30));
-	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(List.of(6,2,8,4,10,8,7,6));
-//	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(List.of(30,20,25,25,25,25,25,25));
+//	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(Arrays.asList(15,20,18,21,28,25,16,27,30));
+	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(Arrays.asList(6,2,8,4,10,8,7,6));
+//	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(Arrays.asList(30,20,25,25,25,25,25,25));
 	
 	private ArrayList<Player> players;
 	private ArrayList<Integer>[] classPlayersId;

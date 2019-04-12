@@ -1,5 +1,3 @@
-import java.io.IOException;
-
 public class Heuristique {
 	
 	public static void main(String[] args) {
