@@ -13,8 +13,7 @@ public class Tournament {
 	// Influe sur la durée du traitement
 	private static final int MAX_TRIES = 2000;
 	
-	private static final int CLASSES_NUMBER = 20;
-
+	private final int classesNumber;
 	private final int roundsNumber;
 	private final int playersNumber;
 	private int[][] matches;
@@ -24,8 +23,8 @@ public class Tournament {
 	// TODO Gérer si classes trop grandes par rapport au nombre d'élèves --> blocage
 //	private final int[] STUDENTS_NUMBER = {3, 4, 4, 4, 3, 3, 2,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,100};
 //	private final int[] STUDENTS_NUMBER = {25,25,25,25,25,25,25,25,25,25,25,25,25};
-//	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(Arrays.asList(15,20,18,21,28,25,16,27,30));
-	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(Arrays.asList(6,2,8,4,10,8,7,6));
+	private final ArrayList<Integer> classeSize = new ArrayList<Integer>();//(Arrays.asList(15,20,18,21,28,25,16,27,30));
+//	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(Arrays.asList(6,2,8,4,10,8,7,6));
 //	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(Arrays.asList(30,20,25,25,25,25,25,25));
 	
 	private ArrayList<Player> players;
@@ -33,19 +32,37 @@ public class Tournament {
 	private ArrayList<Integer>[] possibleOpponentsId;
 	
 	@SuppressWarnings("unchecked")
- 	public Tournament(int playersNumber, int roundsNumber) {
-		this.playersNumber = playersNumber;
+ 	public Tournament(ArrayList<Player> ps, int roundsNumber) {
+		this.players = ps;
+		playersNumber = players.size();
+		
+		
 		this.roundsNumber = roundsNumber;
 		
 		// Tableau contenant les IDs des élèves pour chaque classe
 		// Aide pour le random (évite de tomber sur une personne de la même classe)
-		classPlayersId = new ArrayList[CLASSES_NUMBER];
+		int idCurrentClass = players.get(0).getClasseId();
+		int nbClasses = 1;
+		for (Player p : players) {
+			if (p.getClasseId() != idCurrentClass) {
+				nbClasses++;
+				idCurrentClass = p.getClasseId();
+			}
+		}
+		classesNumber = nbClasses;
 		
-		for(int i=0; i<CLASSES_NUMBER; i++) {
+		classPlayersId = new ArrayList[classesNumber];
+		for(int i=0; i<classesNumber; i++) {
 			classPlayersId[i] = new ArrayList<Integer>();
 		}
+		for (Player p : players) {
+			classPlayersId[p.getClasseId()].add(p.getId());
+		}
+		for(int i=0; i < classesNumber; i++) {
+			classeSize.add(classPlayersId[i].size());
+		}
 		
-		createPlayers();
+		// createPlayers();
 		
 		generatePossibleOpponents();
 		
@@ -79,7 +96,7 @@ public class Tournament {
 		return correct;
 	}
 	
-	private int getPlayerClasse(int id) {
+	/* private int getPlayerClasse(int id) {
 		int sum = 0;
 		int classe = 0;
 		
@@ -94,9 +111,10 @@ public class Tournament {
 		classPlayersId[classe].add(id);
 		
 		return classe;
-	}
+	} */
 
-	private void createPlayers() {
+	/*
+	 * private void createPlayers() {
 		// Si pas suffisamment de places disponibles dans les classes
 		int placesNumber = classeSize.stream().mapToInt(a -> a).sum();
 		if(placesNumber < playersNumber)
@@ -110,12 +128,12 @@ public class Tournament {
 		}
 	
 		sortPlayers();
-	}
+	}*/
 	
 	@SuppressWarnings("unchecked")
 	private void generatePossibleOpponents() {
 		
-		possibleOpponentsId = new ArrayList[CLASSES_NUMBER];
+		possibleOpponentsId = new ArrayList[classesNumber];
 		
 		// Tableau qui contient tous les IDs
 		ArrayList<Integer> allPlayersIds = new ArrayList<Integer>();
@@ -123,7 +141,7 @@ public class Tournament {
 		for(int i=0; i<playersNumber; i++)
 			allPlayersIds.add(i);
 		
-		for(int classe=0; classe<CLASSES_NUMBER; classe++) {
+		for(int classe=0; classe<classesNumber; classe++) {
 			possibleOpponentsId[classe] = new ArrayList<Integer>(allPlayersIds);
 
 			for(int i=0; i<classPlayersId[classe].size(); i++) {

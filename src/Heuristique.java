@@ -1,12 +1,26 @@
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 public class Heuristique {
 	
+	private static ArrayList<Player> players = new ArrayList<>();
+	
 	public static void main(String[] args) {
-		
+				
 		final int NB_SOLUTIONS = 1;
-		final int NB_PLAYERS = 30;
+		// final int NB_PLAYERS = 30;
 		final int NB_ROUNDS = 6;
 		
-		Tournament tournament = new Tournament(NB_PLAYERS, NB_ROUNDS);
+		readFromJSON();
+			
+		Tournament tournament = new Tournament(players, NB_ROUNDS);
 		
 		// Moyenne de temps pour NB_SOLUTIONS solutions
 		long sum_duration = 0;
@@ -60,7 +74,49 @@ public class Heuristique {
 		System.out.println("------------------------------------------------------");
 		
 		
-//		System.out.println(tournament.getMatchesTable());		
+		System.out.println(tournament.getMatchesTable());		
+	}
+	
+	/**
+	 * Permet de lire des données depuis un fichier JSON
+	 * 
+	 * @return le nombre d'élèves lus
+	 */
+	public static int readFromJSON() {
+		int nbEleves = 0;
+		
+		
+		
+		
+		// Création du JSONPArser
+		JSONParser parser = new JSONParser();
+		JSONObject obj = null;
+		try {
+			obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		// Récupération de toutes les classes
+		JSONArray classes = (JSONArray) obj.get("classe");
+		// Pour chaque classe
+		for(Object o : classes) {
+			JSONObject classe = (JSONObject) o;
+			// On récupère chaque eleve
+			JSONArray eleves = (JSONArray) classe.get("eleve");
+			for (Object e : eleves) {
+				JSONObject eleve = (JSONObject) e;
+				
+				Player p = new Player(Integer.parseInt((String)eleve.get("id")), Integer.parseInt((String)classe.get("id")));
+				players.add(p);
+				nbEleves++;
+			}
+		}
+		return nbEleves;
 	}
 
 }
