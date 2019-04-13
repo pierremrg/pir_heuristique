@@ -7,7 +7,11 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.DefaultListModel;
@@ -23,8 +27,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.SystemColor;
 
 public class GUI {
 
@@ -32,6 +43,7 @@ public class GUI {
 	public JTextPane console;
 	
 	private Tournament tournament;
+	private static ArrayList<Player> players = new ArrayList<>();
 	
 	final int NB_SOLUTIONS = 1;
 	final int NB_PLAYERS = 200;
@@ -122,7 +134,9 @@ public class GUI {
 	
 	private void initTournament() {
 		
-		tournament = new Tournament(NB_PLAYERS, NB_ROUNDS);
+		readFromJSON();
+		
+		tournament = new Tournament(players, NB_ROUNDS);
 		//tournament.createMatches();
 		
 	}
@@ -165,7 +179,7 @@ public class GUI {
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbc_tabbedPane = new GridBagConstraints();
-		gbc_tabbedPane.insets = new Insets(0, 0, 5, 5);
+		gbc_tabbedPane.insets = new Insets(0, 0, 2, 5);
 		gbc_tabbedPane.fill = GridBagConstraints.BOTH;
 		gbc_tabbedPane.gridx = 0;
 		gbc_tabbedPane.gridy = 0;
@@ -209,7 +223,7 @@ public class GUI {
 				
 				list.setModel(playerNames);
 				
-				writeConsole("Joueurs chargés.");
+				writeConsole("Joueurs chargés");
 			}
 		});
 		GridBagConstraints gbc_btnChargerJoueurs = new GridBagConstraints();
@@ -247,8 +261,8 @@ public class GUI {
 		panel_2.add(scrollPane_1);
 		
 		console = new JTextPane();
+		console.setBackground(SystemColor.control);
 		console.setEditable(false);
-		console.setEnabled(false);
 		scrollPane_1.setViewportView(console);
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -273,5 +287,47 @@ public class GUI {
 		
 		console.setText(oldText + "[" + date + "] " + message + "\n");
 		
+	}
+	
+	/**
+	 * Permet de lire des données depuis un fichier JSON
+	 * 
+	 * @return le nombre d'élèves lus
+	 */
+	public static int readFromJSON() {
+		int nbEleves = 0;
+		
+		
+		
+		
+		// Création du JSONPArser
+		JSONParser parser = new JSONParser();
+		JSONObject obj = null;
+		try {
+			obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		// Récupération de toutes les classes
+		JSONArray classes = (JSONArray) obj.get("classe");
+		// Pour chaque classe
+		for(Object o : classes) {
+			JSONObject classe = (JSONObject) o;
+			// On récupère chaque eleve
+			JSONArray eleves = (JSONArray) classe.get("eleve");
+			for (Object e : eleves) {
+				JSONObject eleve = (JSONObject) e;
+				
+				Player p = new Player(Integer.parseInt((String)eleve.get("id")), Integer.parseInt((String)classe.get("id")));
+				players.add(p);
+				nbEleves++;
+			}
+		}
+		return nbEleves;
 	}
 }
