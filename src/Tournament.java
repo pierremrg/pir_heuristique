@@ -10,6 +10,8 @@ import java.util.Random;
 
 public class Tournament {
 	
+	private GUI gui;
+	
 	// Influe sur la durée du traitement
 	private static final int MAX_TRIES = 2000;
 	
@@ -24,8 +26,8 @@ public class Tournament {
 	// TODO Gérer si classes trop grandes par rapport au nombre d'élèves --> blocage
 //	private final int[] STUDENTS_NUMBER = {3, 4, 4, 4, 3, 3, 2,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,100};
 //	private final int[] STUDENTS_NUMBER = {25,25,25,25,25,25,25,25,25,25,25,25,25};
-//	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(List.of(15,20,18,21,28,25,16,27,30));
-	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(List.of(6,2,8,4,10,8,7,6));
+	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(List.of(15,20,18,21,28,25,16,27,30));
+//	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(List.of(6,2,8,4,10,8,7,6));
 //	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(List.of(30,20,25,25,25,25,25,25));
 	
 	private ArrayList<Player> players;
@@ -48,6 +50,8 @@ public class Tournament {
 		createPlayers();
 		
 		generatePossibleOpponents();
+		
+		createBaseMatches();
 		
 		// Scores
 		scores = new int[playersNumber];
@@ -82,8 +86,6 @@ public class Tournament {
 	private int getPlayerClasse(int id) {
 		int sum = 0;
 		int classe = 0;
-		
-		
 		
 		while(sum + classeSize.get(classe)-1 < id) {
 			sum += classeSize.get(classe);
@@ -186,6 +188,10 @@ public class Tournament {
 		
 	}
 	
+	private boolean colorsMatch(int playerId1, int playerId2) {
+		return (playerId1 % 2 != playerId2 % 2);
+	}
+	
 	public void createMatches() {
 		
 		Random rand = new Random();
@@ -244,7 +250,7 @@ public class Tournament {
 						int advId = possibleOpponentsId[classeId].get(rand.nextInt(opponentsSize));
 						
 						// Si les deux joueurs pas dans la même classe et qu'aucun match n'est prévu
-						if(matches[i][advId] == 0 && !doneMatches[advId].contains(round)) {
+						if(matches[i][advId] == 0 && colorsMatch(i, advId) && !doneMatches[advId].contains(round)) {
 							matches[i][advId] = round;
 							matches[advId][i] = round;
 							doneMatches[i].add(round);
@@ -260,6 +266,7 @@ public class Tournament {
 			
 		}
 
+		gui.writeConsole("Matches créés");
 		//System.out.println((float) timeElapsed/1000000.0 + " ms pour " + playersNumber + " joueurs");
 	}
 	
@@ -298,19 +305,20 @@ public class Tournament {
 	
 	public String getMatchesTable() {
 		
-		String str = "     |";
+		String str = "           |";
 		
 		for(int j=0; j<playersNumber; j++) {
-			str += format(players.get(j).getId() + "/" + players.get(j).getClasseId()) + " ";
+			str += format(players.get(j).getId() + "[" + players.get(j).getClasseId()) + "]";
 		}
 		str += "\n";
 		
 		for(int i=0; i<playersNumber; i++) {
-			str += format(players.get(i).getId() + "/" + players.get(i).getClasseId()) + "|";
+			str += (i % 2 == 1) ? "(B)" : "(W)";
+			str += format(players.get(i).getId() + "[" + players.get(i).getClasseId()) + "] |";
 			
 			for(int j=0; j<playersNumber; j++) {
 				if(matches[i][j] == -1)
-					str += format("_ ") + " ";
+					str += format("_") + " ";
 				
 				else if(matches[i][j] > 0)
 					str += format(matches[i][j]) + " ";
@@ -330,14 +338,14 @@ public class Tournament {
 	private static String format(int number) {
 		String str = Integer.toString(number);
 		
-		while(str.length() < 5)
+		while(str.length() < 6)
 			str = " " + str;
 		
 		return str;
 	}
 	
 	private static String format(String str) {
-		while(str.length() < 5)
+		while(str.length() < 6)
 			str = " " + str;
 		
 		return str;
@@ -362,6 +370,17 @@ public class Tournament {
 			if (out != null)
 				out.close();
 		}
+	}
+	
+	
+	/************************* Getters / Setters *************************/
+	
+	public ArrayList<Player> getPlayers(){
+		return players;
+	}
+	
+	public void setGUI(GUI gui) {
+		this.gui = gui;
 	}
 
 }

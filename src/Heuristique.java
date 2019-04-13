@@ -5,8 +5,10 @@ public class Heuristique {
 	public static void main(String[] args) {
 		
 		final int NB_SOLUTIONS = 1;
-		final int NB_PLAYERS = 30;
+		final int NB_PLAYERS = 200;
 		final int NB_ROUNDS = 6;
+		
+		final boolean saveSolution = true;
 		
 		Tournament tournament = new Tournament(NB_PLAYERS, NB_ROUNDS);
 		
@@ -23,7 +25,9 @@ public class Heuristique {
 			// Solution
 			long startTime = System.nanoTime();
 			
-			tournament.createMatches(); 
+//			System.out.println(tournament.getMatchesTable());
+			
+			tournament.createMatches();
 			
 			long timeElapsed = System.nanoTime() - startTime;
 			sum_duration += timeElapsed;
@@ -44,13 +48,15 @@ public class Heuristique {
 			System.out.println("Solution " + (i+1) + " trouvée en " + (float)timeElapsed/1000000.0 + " ms"
 					+ " / Score moyen : " + score + " / Score minimum : " + min_score + " / Score maximum : " + max_score + " / Correct : " + correct);
 			
-//			try {
-//				System.out.print("Sauvegarde de la solution " + (i+1) + "... ");
-//				tournament.saveSolution("solution" + (i+1) + ".txt");
-//				System.out.println("Solution " + (i+1) + " sauvegardée.");
-//			} catch (IOException e) {
-//				System.err.println("Erreur lors de la sauvegarde du fichier.");
-//			}
+			if(saveSolution) {
+				try {
+					System.out.print("Sauvegarde de la solution " + (i+1) + "... ");
+					tournament.saveSolution("solution" + (i+1) + ".txt");
+					System.out.println("Solution " + (i+1) + " sauvegardée.");
+				} catch (IOException e) {
+					System.err.println("Erreur lors de la sauvegarde du fichier.");
+				}
+			}
 		}
 		
 		
