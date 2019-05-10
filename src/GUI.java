@@ -1,21 +1,27 @@
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Vector;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JMenu;
@@ -24,32 +30,36 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.SystemColor;
-
 public class GUI {
 
 	private JFrame frame;
 	public JTextPane console;
+	public JTable matchsTable;
 	
 	private Tournament tournament;
 	private static ArrayList<Player> players = new ArrayList<>();
 	
 	final int NB_SOLUTIONS = 1;
-	final int NB_PLAYERS = 200;
+//	final int NB_PLAYERS = 200;
 	final int NB_ROUNDS = 6;
 	
+	private static final float FORGOTTEN_PERCENT = (float) 30/100;
+	private static final int FORGET_TURNS_NUMBER = 0;
+	
 	final boolean saveSolution = false;
+	
 	
 	/**
 	 * Launch the application.
@@ -134,9 +144,9 @@ public class GUI {
 	
 	private void initTournament() {
 		
-		readFromJSON();
+//		readFromJSON();
 		
-		tournament = new Tournament(players, NB_ROUNDS);
+		tournament = new Tournament(players, NB_ROUNDS, FORGOTTEN_PERCENT, FORGET_TURNS_NUMBER, this);
 		//tournament.createMatches();
 		
 	}
@@ -162,95 +172,89 @@ public class GUI {
 	private void initialize() throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
 		
 		// Initialise le tournoi
-		initTournament();
+//		initTournament();
 		
 		frame = new JFrame();
 		
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		
-		frame.setBounds(100, 100, 631, 385);
+		frame.setBounds(100, 100, 700, 500);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] {300, 300};
-		gridBagLayout.rowHeights = new int[] {300, 100};
-		gridBagLayout.columnWeights = new double[]{1.0, 1.0};
+		gridBagLayout.columnWidths = new int[] {300};
+		gridBagLayout.rowHeights = new int[] {330, 100};
+		gridBagLayout.columnWeights = new double[]{1.0};
 		gridBagLayout.rowWeights = new double[]{1.0, 1.0};
 		frame.getContentPane().setLayout(gridBagLayout);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		GridBagConstraints gbc_tabbedPane = new GridBagConstraints();
-		gbc_tabbedPane.insets = new Insets(0, 0, 2, 5);
+		gbc_tabbedPane.insets = new Insets(0, 0, 5, 5);
 		gbc_tabbedPane.fill = GridBagConstraints.BOTH;
 		gbc_tabbedPane.gridx = 0;
 		gbc_tabbedPane.gridy = 0;
 		frame.getContentPane().add(tabbedPane, gbc_tabbedPane);
 		
 		JPanel panel_1 = new JPanel();
-		tabbedPane.addTab("New tab", null, panel_1, null);
+		tabbedPane.addTab("Joueurs", null, panel_1, null);
 		panel_1.setLayout(new GridLayout(1, 0, 0, 0));
 		
 		JScrollPane scrollPane = new JScrollPane();
 		panel_1.add(scrollPane);
 		
-		JList<String> list = new JList<String>();
-		scrollPane.setViewportView(list);
+		JList<String> listAllPlayers = new JList<String>();
+		scrollPane.setViewportView(listAllPlayers);
 		
 		JPanel panel = new JPanel();
-		panel.setBackground(Color.PINK);
-		GridBagConstraints gbc_panel = new GridBagConstraints();
-		gbc_panel.insets = new Insets(0, 0, 5, 5);
-		gbc_panel.fill = GridBagConstraints.BOTH;
-		gbc_panel.gridx = 1;
-		gbc_panel.gridy = 0;
-		frame.getContentPane().add(panel, gbc_panel);
-		GridBagLayout gbl_panel = new GridBagLayout();
-		gbl_panel.columnWidths = new int[]{0, 0};
-		gbl_panel.rowHeights = new int[]{0, 0, 0};
-		gbl_panel.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-		gbl_panel.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-		panel.setLayout(gbl_panel);
+		tabbedPane.addTab("Niveau 1", null, panel, null);
+		panel.setLayout(new GridLayout(0, 1, 0, 0));
 		
-		JButton btnChargerJoueurs = new JButton("Charger joueurs");
-		btnChargerJoueurs.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				
-				DefaultListModel<String> playerNames = new DefaultListModel<String>();
-				
-				for(Player p : tournament.getPlayers()) {
-					playerNames.addElement(p.getId() + " [" + p.getClasseId() + "]");
-				}
-				
-				list.setModel(playerNames);
-				
-				writeConsole("Joueurs chargés");
-			}
-		});
-		GridBagConstraints gbc_btnChargerJoueurs = new GridBagConstraints();
-		gbc_btnChargerJoueurs.insets = new Insets(0, 0, 5, 0);
-		gbc_btnChargerJoueurs.gridx = 0;
-		gbc_btnChargerJoueurs.gridy = 0;
-		panel.add(btnChargerJoueurs, gbc_btnChargerJoueurs);
+		JScrollPane scrollPane_2 = new JScrollPane();
+		panel.add(scrollPane_2);
 		
-		JButton btnMatcher = new JButton("Matcher");
-		btnMatcher.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				tournament.createMatches();
-			}
-		});
-		GridBagConstraints gbc_btnMatcher = new GridBagConstraints();
-		gbc_btnMatcher.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnMatcher.gridx = 0;
-		gbc_btnMatcher.gridy = 1;
-		panel.add(btnMatcher, gbc_btnMatcher);
+		JList listPlayers1 = new JList();
+		scrollPane_2.setViewportView(listPlayers1);
+		
+		JPanel panel_3 = new JPanel();
+		tabbedPane.addTab("Niveau 2", null, panel_3, null);
+		panel_3.setLayout(new GridLayout(1, 0, 0, 0));
+		
+		JScrollPane scrollPane_3 = new JScrollPane();
+		panel_3.add(scrollPane_3);
+		
+		JList listPlayers2 = new JList();
+		scrollPane_3.setViewportView(listPlayers2);
+		
+		JPanel panel_5 = new JPanel();
+		tabbedPane.addTab("Niveau 3", null, panel_5, null);
+		panel_5.setLayout(new GridLayout(1, 0, 0, 0));
+		
+		JScrollPane scrollPane_4 = new JScrollPane();
+		panel_5.add(scrollPane_4);
+		
+		JList listPlayers3 = new JList();
+		scrollPane_4.setViewportView(listPlayers3);
+		
+		JPanel panel_4 = new JPanel();
+		tabbedPane.addTab("Matchs", null, panel_4, null);
+		panel_4.setLayout(new GridLayout(1, 0, 0, 0));
+		
+		JScrollPane scrollPane_5 = new JScrollPane();
+		panel_4.add(scrollPane_5);
+		
+		matchsTable = new JTable();
+		matchsTable.setRowSelectionAllowed(false);
+		matchsTable.setEnabled(false);
+		scrollPane_5.setViewportView(matchsTable);
+//		displayMatchsTable();
+//		matchsTable.setDefaultRenderer(String.class, new MyRenderer());
 		
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(Color.YELLOW);
 		panel_2.setMaximumSize(new Dimension(100,100));
 		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
+		gbc_panel_2.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_2.anchor = GridBagConstraints.PAGE_END;
-		gbc_panel_2.gridwidth = 2;
-		gbc_panel_2.insets = new Insets(0, 0, 0, 5);
 		gbc_panel_2.fill = GridBagConstraints.BOTH;
 		gbc_panel_2.gridx = 0;
 		gbc_panel_2.gridy = 1;
@@ -264,7 +268,7 @@ public class GUI {
 		console.setBackground(SystemColor.control);
 		console.setEditable(false);
 		scrollPane_1.setViewportView(console);
-		
+
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
 		
@@ -272,9 +276,56 @@ public class GUI {
 		menuBar.add(mnFichier);
 		
 		JMenuItem mntmQuitter = new JMenuItem("Quitter");
+		mntmQuitter.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+			}
+		});
 		mnFichier.add(mntmQuitter);
 		
-		tournament.setGUI(this);
+		JMenu mnTournoi = new JMenu("Tournoi");
+		menuBar.add(mnTournoi);
+		
+		JMenuItem mntmChargerLesJoueurs = new JMenuItem("Charger les joueurs");
+		mntmChargerLesJoueurs.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				File playersFile = openPlayersFile();
+				
+				if(playersFile == null)
+					return;
+				
+				readFromJSON(playersFile);
+				
+					
+				DefaultListModel<String> playerNames = new DefaultListModel<String>();
+				
+				for(Player p : players) {
+					playerNames.addElement(p.getPrenom() + " " + p.getNom());
+//					playerNames.addElement(p.getId() + " [" + p.getClasseId() + "]");
+				}
+				
+				listAllPlayers.setModel(playerNames);
+				
+				writeConsole("Joueurs chargés");
+			}
+		});
+		mnTournoi.add(mntmChargerLesJoueurs);
+		
+		JMenuItem mntmCrerLesMatchs = new JMenuItem("Cr\u00E9er les matchs");
+		mntmCrerLesMatchs.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				readFromJSON(null);
+				initTournament();
+				tournament.createMatches();
+				displayMatchsTable();
+			}
+		});
+		mnTournoi.add(mntmCrerLesMatchs);
+		
+//		tournament.setGUI(this);
 	}
 	
 	void writeConsole(String message) {
@@ -289,15 +340,29 @@ public class GUI {
 		
 	}
 	
+	public File openPlayersFile() {
+		final JFileChooser fc = new JFileChooser();
+		fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		
+		int result = fc.showOpenDialog(frame);
+		
+		if(result == JFileChooser.APPROVE_OPTION)
+			return fc.getSelectedFile();
+		else
+			return null;
+	}
+	
 	/**
 	 * Permet de lire des données depuis un fichier JSON
 	 * 
 	 * @return le nombre d'élèves lus
 	 */
-	public static int readFromJSON() {
+	public static int readFromJSON(File playersFile) {
 		int nbEleves = 0;
 		
+		players.clear();
 		
+		// TODO Gérer enabled/disabled
 		
 		
 		// Création du JSONPArser
@@ -305,6 +370,7 @@ public class GUI {
 		JSONObject obj = null;
 		try {
 			obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
+//			obj = (JSONObject) parser.parse(new FileReader(playersFile));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -323,11 +389,99 @@ public class GUI {
 			for (Object e : eleves) {
 				JSONObject eleve = (JSONObject) e;
 				
-				Player p = new Player(Integer.parseInt((String)eleve.get("id")), Integer.parseInt((String)classe.get("id")));
+				Player p = new Player(Integer.parseInt((String)eleve.get("id")), Integer.parseInt((String)classe.get("id")),
+						(String) eleve.get("prenom"), (String) eleve.get("nom"));
 				players.add(p);
 				nbEleves++;
 			}
 		}
 		return nbEleves;
 	}
+	
+	@SuppressWarnings("rawtypes")
+	public void displayMatchsTable() {
+		
+//		Object[][] donnees = {
+//                {"Johnathan", "Sykes", Color.red, true},
+//                {"Nicolas", "Van de Kampf", Color.black, true},
+//                {"Damien", "Cuthbert", Color.cyan, true},
+//                {"Corinne", "Valance", Color.blue, false},
+//                {"Emilie", "Schrödinger", Color.magenta},
+//                {"Delphine", "Duke", Color.yellow, false},
+//                {"Eric", "Trump", Color.pink, true},
+//        };
+		
+        DefaultTableModel dtm = new DefaultTableModel(0, 0);
+        
+//        String[] headers = {"Prénom", "Nom", "Couleur favorite", "Homme"};
+//        dtm.setColumnIdentifiers(headers);
+        matchsTable.setTableHeader(null);
+        matchsTable.setModel(dtm);
+        
+        players = tournament.getPlayers();
+        
+        String[] headers = new String[players.size() + 1];
+        headers[0] = "";
+        for(int i=0; i<players.size(); i++)
+        	headers[i+1] = players.get(i).getId() + " [" + players.get(i).getClasseId() + "]";
+        
+        dtm.setColumnIdentifiers(headers); // Doit etre mis avant d'ajouter les donnees !
+        
+//        dtm.addRow(new Object[] {"toto", "toto", "toto", "toto"});
+        
+        int[][] matches = tournament.getMatches();
+        
+        for(int i=0; i<players.size(); i++) {
+        	
+        	Object[] data = new Object[players.size() + 1];
+        	
+//        	Object[] data = ArrayUtil.toObject(matches[i]);
+//        	DefaultTableModel.con
+//			@SuppressWarnings("unchecked")
+//			Vector<Integer> data = new Vector(Arrays.asList(matches[i]));
+//        	dtm.addRow(data);
+        	
+        	data[0] = players.get(i).getId() + " [" + players.get(i).getClasseId() + "]";
+        	
+        	for(int j=0; j<players.size(); j++) {
+        		data[j+1] = (matches[i][j] != 0) ? matches[i][j] : "";
+        		
+        		
+        	}
+        	
+        	dtm.addRow(data);
+        }
+	
+//		class MyRenderer extends DefaultTableCellRenderer {
+//
+//			private static final long serialVersionUID = 1L;
+//
+//			Color backgroundColor = Color.LIGHT_GRAY;
+//	
+//	        @Override
+//	        public Component getTableCellRendererComponent(
+//	            JTable table, Object value, boolean isSelected,
+//	            boolean hasFocus, int row, int column) {
+//	        	
+//	            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+//	            
+////	            MyModel model = (MyModel) table.getModel();
+//	            DefaultTableModel model = (DefaultTableModel) matchsTable.getModel();
+//	            
+//	            if(model.getValueAt(row, column) != null){
+//	            	System.out.println((String) model.getValueAt(row, column));
+//	            }
+//	            
+////	            if (model.getState(row)) {
+////	                c.setBackground(Color.green.darker());
+////	            } else if (!isSelected) {
+////	                c.setBackground(backgroundColor);
+////	            }
+//	            
+//	            return c;
+//	        }
+//	    }
+	
+	}
+	
 }

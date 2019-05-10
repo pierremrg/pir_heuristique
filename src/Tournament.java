@@ -1,4 +1,3 @@
-import java.util.List;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -7,18 +6,34 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.SynchronousQueue;
+import java.util.stream.Collectors;
 
 public class Tournament {
 	
 	private GUI gui;
 	
+	// Pour deux élèves de la même classe
+	private static final int NO_POSSIBLE_MATCH = -1;
+	
 	// Influe sur la durée du traitement
 	private static final int MAX_TRIES = 2000;
+	
+	// On oublie les N moins bons joueurs et on refait un match
+//	private static final float FORGOTTEN_PERCENT = (float) 30/100;
+//	private static final int FORGET_TURNS_NUMBER = 1;
+	private final float forgotten_percent;
+	private final int forget_turns_number;
 	
 	private final int classesNumber;
 	private final int roundsNumber;
 	private final int playersNumber;
 	private int[][] matches;
+	
+	// Un tableau d'ArrayList => contient la liste de tous les matches prévus pour chaque joueur
+	// Permet que si A joue contre B au round R, on ne cherche pas d'adversaire ensuite pour B au round R
+	ArrayList<Integer>[] doneMatches;
+	
 	private int[] scores;
 	
 	// Pour chaque classe
@@ -33,12 +48,14 @@ public class Tournament {
 	private ArrayList<Integer>[] possibleOpponentsId;
 	
 	@SuppressWarnings("unchecked")
- 	public Tournament(ArrayList<Player> ps, int roundsNumber) {
+ 	public Tournament(ArrayList<Player> ps, int roundsNumber, float forgotten_percent, int forget_turns_number, GUI gui) {
+		this.gui = gui;
+		
 		this.players = ps;
 		
 		playersNumber = players.size();
 		
-		//sortPlayers(); // TODO Gérer classeSize pour pouvoir utiliser sortPlayers()
+		doneMatches = new ArrayList[playersNumber];
 		
 		this.roundsNumber = roundsNumber;
 		
@@ -65,6 +82,8 @@ public class Tournament {
 			classeSize.add(classPlayersId[i].size());
 		}
 		
+		sortPlayers();
+		
 		// createPlayers();
 		
 		generatePossibleOpponents();
@@ -73,6 +92,10 @@ public class Tournament {
 		
 		// Scores
 		scores = new int[playersNumber];
+		
+		// Amélioration
+		this.forgotten_percent = forgotten_percent;
+		this.forget_turns_number = forget_turns_number;
 	}
 	
 	// Indique si la solution est correcte
@@ -90,12 +113,17 @@ public class Tournament {
 			sum_ligne = 0;
 			
 			for(int j=0; j<playersNumber; j++) {
-				if(matches[i][j] > 0)
+				if(matches[i][j] > 0) {
 					sum_ligne += matches[i][j];
+				}
+					
 			}
 			
-			if(sum_ligne != goal)
+			if(sum_ligne != goal) {
+				System.out.println("Erreur joueur " + i + " (" + sum_ligne + ")");
 				correct = false;
+			}
+				
 		}
 		
 		return correct;
@@ -200,7 +228,7 @@ public class Tournament {
 			for(int j=0; j<playersNumber; j++) {
 				
 				if(players.get(i).getClasseId() == players.get(j).getClasseId())
-					matches[i][j] = -1;
+					matches[i][j] = NO_POSSIBLE_MATCH;
 				
 			}
 		}
@@ -213,23 +241,16 @@ public class Tournament {
 	
 	public void createMatches() {
 		
+//		System.out.println("Génération des matches (" + playersNumber + " joueurs / " + classesNumber + " classes / " + roundsNumber + " rounds)...");
+		
 		long startTime = System.nanoTime();
 		
-		Random rand = new Random();
+		int playerOKCount = 0;
 		
-		// Score de la solution
-		//int score = -1;
-		int roundOKCount = 0;
-		
-		while(roundOKCount < playersNumber * roundsNumber) {
+		while(playerOKCount < playersNumber) {
 			
-			roundOKCount = 0;
+			playerOKCount = 0;
 			createBaseMatches();
-		
-			// Un tableau d'ArrayList => contient la liste de tous les matches prévus pour chaque joueur
-			// Permet que si A joue contre B au round R, on ne cherche pas d'adversaire ensuite pour B au round R
-			@SuppressWarnings("unchecked")
-			ArrayList<Integer>[] doneMatches = new ArrayList[playersNumber];
 			
 			for(int i=0; i<playersNumber; i++) {
 				doneMatches[i] = new ArrayList<Integer>();
@@ -238,59 +259,235 @@ public class Tournament {
 			// Pour chaque joueur (chaque ligne)
 			for(int i=0; i<playersNumber; i++) {
 				
-				int classeId = players.get(i).getClasseId();
-				int opponentsSize = possibleOpponentsId[classeId].size();
-				
-				// On essaie d'attribuer tous les rounds sur la ligne
-				for(int round=1; round<=roundsNumber; round++) {
-					
-					// Si le joueur a déjà un match prévu ce round, on passe
-					if(doneMatches[i].contains(round)) {
-						roundOKCount++;
-						continue;
-					}
-					
-					boolean roundOK = false;
-					int loopCount = 0;
-				
-					// Tant qu'on n'a pas trouvé d'adversaire
-					while(!roundOK) {
-						
-						loopCount++;
-						if(loopCount == MAX_TRIES) {
-							//System.out.println(getMatchesTable());
-							//System.out.println("STOP (Joueur : " + i + ")");
-							round = 1000;
-							i = 1000;
-							break;
-						}
-						
-						// Choix de l'adversaire au hasard
-//						int randomNum = rand.nextInt((max - min) + 1) + min;
-//						int advId = rand.nextInt((players.size() - 1) + 1);
-						int advId = possibleOpponentsId[classeId].get(rand.nextInt(opponentsSize));
-						
-						// Si les deux joueurs pas dans la même classe et qu'aucun match n'est prévu
-						if(matches[i][advId] == 0 && colorsMatch(i, advId) && !doneMatches[advId].contains(round)) {
-							matches[i][advId] = round;
-							matches[advId][i] = round;
-							doneMatches[i].add(round);
-							doneMatches[advId].add(round);
-							roundOK = true;
-							roundOKCount++;
-						}
-						
-					}
-	
-				}
+				if(foundMatches(i) >= 0)
+					playerOKCount++;
+				else
+					break;
+			
 			}
 			
 		}
+		
+		computeScores();
+		double oldAverage = getAverageScore();
+		System.out.println(getMatchesTable());
+		
+//		int oldMatches[][] = copyBidimensionalArray(matches);
+		
+		// Amélioration du résultat : on supprime N fois les moins bons tirages
+		for(int t=0; t<forget_turns_number; t++) {
+			
+			int oldMatches[][] = copyBidimensionalArray(matches);
+			ArrayList<Integer> oldDoneMatches[] = copyArrayOfArrayList(doneMatches);
+			ArrayList<Integer> playerIdsToForget = getPlayerIdsToForget();
+			System.out.println(playerIdsToForget.toString());
+			
+			playerOKCount = 0;
+			
+			while(playerOKCount < playersNumber) {
+				
+				matches = copyBidimensionalArray(oldMatches);
+				doneMatches = copyArrayOfArrayList(oldDoneMatches);
+				
+				// Pour chaque joueur pour lesquels on recommence le tirage, on efface ses matches
+				for(int i : playerIdsToForget) {
+					resetMatches(i);
+				}
+				
+				System.out.println("here: " + playerOKCount);
+				System.out.println(getMatchesTable());
+				
+				playerOKCount = playersNumber - getNotCompletedPlayersNumber();
+				
+				// Pour chaque joueur, on refait les matchs si besoin
+				for(int i=0; i<playersNumber; i++) {
+					
+					// changed = -1 si pas de match, 0 si pas de changement, 1 si changement
+					int changed = foundMatches(i);
+					System.out.println("changed:" + changed);
+					
+					if(changed == 1) {
+						playerOKCount++;
+						
+						System.out.println(getMatchesTable());
+					}
+						
+					else if(changed == -1)
+						break;
+				
+				}
+				
+			}
+			
+		}
+		
+//		computeScores();
+//		double newAverage = getAverageScore();
+//		double diffAverage = newAverage - oldAverage;
+//		
+//		System.out.println(newAverage + " / " + oldAverage);
+//		
+//		System.out.println(diffAverage);
+		
+		
+		
+		/*
+		 * TODO Suite :
+		 * Séparer la fonction createMatches (pour appeler avec différents players) OK
+		 * Créer fonction : récupérer les IDs des joueurs à relancer + RAZ de leur match
+		 * Matcher pour les IDs retournés
+		 * Modifier la fonction createMatches pour relancer le nombre de fois nécessaire l'étape précédente
+		 */
 
 		long timeElapsed = System.nanoTime() - startTime;
 		gui.writeConsole("Matches créés pour " + playersNumber + " joueurs et " + roundsNumber + " rounds en " + (float)timeElapsed/1000000.0 + " ms");
 		//System.out.println((float) timeElapsed/1000000.0 + " ms pour " + playersNumber + " joueurs");
 	}
+	
+	/**
+	 * Trouve les matches pour un joueur
+	 * @param playerId ID du joueur
+	 * @return 0 si pas de changement pour ce joueur, 1 si changement, -1 si MAX_TRIES atteint
+	 */
+	private int foundMatches(int playerId) {
+		
+		int changed = 0;
+		
+		int i = playerId;
+		
+		Random rand = new Random();
+		
+		int classeId = players.get(i).getClasseId();
+		int opponentsSize = possibleOpponentsId[classeId].size();
+		
+		// On essaie d'attribuer tous les rounds sur la ligne
+		for(int round=1; round<=roundsNumber; round++) {
+			
+			// Si le joueur a déjà un match prévu ce round, on passe
+			if(doneMatches[i].contains(round)) {
+				//roundOKCount++;
+				continue;
+			}
+			
+			boolean roundOK = false;
+			int loopCount = 0;
+		
+			// Tant qu'on n'a pas trouvé d'adversaire
+			while(!roundOK) {
+				
+				loopCount++;
+				if(loopCount == MAX_TRIES) {
+//					System.out.println(checkSolution());
+//					System.out.println(getMatchesTable());
+//					System.out.println("STOP (Joueur : " + i + ")");
+//					round = 1000;
+//					i = 1000;
+//					break;
+					return -1;
+				}
+				
+				// Choix de l'adversaire au hasard
+//				int randomNum = rand.nextInt((max - min) + 1) + min;
+//				int advId = rand.nextInt((players.size() - 1) + 1);
+				int advId = possibleOpponentsId[classeId].get(rand.nextInt(opponentsSize));
+				
+				// Si les deux joueurs pas dans la même classe et qu'aucun match n'est prévu
+				if(matches[i][advId] == 0 && colorsMatch(i, advId) && !doneMatches[advId].contains(round)) {
+					matches[i][advId] = round;
+					matches[advId][i] = round;
+					doneMatches[i].add(round);
+					doneMatches[advId].add(round);
+					roundOK = true;
+					changed = 1;
+					//roundOKCount++;
+				}
+				
+			}
+
+		}
+		
+		return changed;
+	}
+	
+	/**
+	 * Retourne les N plus mauvais tirages (selon FORGOTTEN_PERCENT)
+	 */
+	private ArrayList<Integer> getPlayerIdsToForget() {
+		
+		ArrayList<Integer> playerIdsToForget = new ArrayList<Integer>();
+		
+		computeScores();
+//		System.out.println(getAverageScore());
+		
+		int tmpScores[] = Arrays.copyOf(scores, scores.length);
+		
+		int nbPlayersToForget = (int) (forgotten_percent * playersNumber);
+		
+		// TODO Faire un "shuffle" de tmpScores (sinon ce sont toujours les 1ers moins bons élèves qui sont modifiés !)
+		
+		for(int i=0; i<nbPlayersToForget; i++) {
+			int min = Arrays.stream(tmpScores).min().getAsInt();
+			int indexMin = Arrays.stream(tmpScores).boxed().collect(Collectors.toList()).indexOf(min);
+			
+			playerIdsToForget.add(indexMin);
+			tmpScores[indexMin] = roundsNumber + 1; // Impossible d'avoir plus que ça
+		}
+		
+		return playerIdsToForget;
+	}
+	
+	private void resetMatches(int playerId) {
+		
+		for(int i=0; i<playersNumber; i++) {
+			for(int j=0; j<playersNumber; j++) {
+			
+				if(matches[i][j] > 0 && (i == playerId || j == playerId)) {
+					
+					int oldRound = matches[i][j];
+					
+//					System.out.println(doneMatches[i].toString() + " / " + oldRound);
+					doneMatches[i].remove(doneMatches[i].indexOf(oldRound));
+
+					matches[i][j] = 0;
+				}
+				
+			}
+		}
+		
+	}
+	
+	private int getNotCompletedPlayersNumber() {
+		
+		int notCompleted = 0;
+		
+		int goal = 0;
+		for(int i=1; i<=roundsNumber; i++) {
+			goal += i;
+		}
+
+		int sum_ligne;
+		
+		for(int i=0; i<playersNumber; i++) {
+			sum_ligne = 0;
+			
+			for(int j=0; j<playersNumber; j++) {
+				if(matches[i][j] > 0) {
+					sum_ligne += matches[i][j];
+				}
+			}
+			
+			if(sum_ligne != goal) {
+				notCompleted++;
+			}
+				
+		}
+		
+		return notCompleted;
+	}
+	
+	
+	
+	
 	
 	
 	public void computeScores() {
@@ -394,11 +591,44 @@ public class Tournament {
 		}
 	}
 	
+	private static int[][] copyBidimensionalArray(int origin[][]) {
+		
+		int copy[][] = new int[origin.length][];
+		for(int i = 0; i < origin.length; i++) {
+			copy[i] = new int[origin[i].length];
+			
+			for(int j=0; j<origin[i].length; j++) {
+				copy[i][j] = origin[i][j];
+			}
+		}
+		
+		return copy;
+	}
+	
+	private ArrayList<Integer>[] copyArrayOfArrayList(ArrayList<Integer>[] origin){
+		
+		@SuppressWarnings("unchecked")
+		ArrayList<Integer>[] copy = new ArrayList[origin.length];
+		
+		for(int i=0; i<origin.length; i++)
+			copy[i] = new ArrayList<Integer>(origin[i]);
+		
+		return copy;
+	}
+	
 	
 	/************************* Getters / Setters *************************/
 	
 	public ArrayList<Player> getPlayers(){
 		return players;
+	}
+	
+	public void setPlayers(ArrayList<Player> players) {
+		this.players = players;
+	}
+	
+	public int[][] getMatches(){
+		return matches;
 	}
 	
 	public void setGUI(GUI gui) {

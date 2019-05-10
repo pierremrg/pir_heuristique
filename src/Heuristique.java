@@ -10,78 +10,94 @@ import org.json.simple.parser.ParseException;
 
 public class Heuristique {
 	
+	private static final int NB_SOLUTIONS = 1;
+
+	// final int NB_PLAYERS = 30;
+	private static final int NB_ROUNDS = 6;
+	
+//	private static final float FORGOTTEN_PERCENT = (float) 10/100;
+	private static final int FORGET_TURNS_NUMBER = 0;
+	
+	private static final boolean SAVE_SOLUTION = false;
+	
 	private static ArrayList<Player> players = new ArrayList<>();
 	
 	public static void main(String[] args) {
-				
-		final int NB_SOLUTIONS = 1;
-
-		// final int NB_PLAYERS = 30;
-		final int NB_ROUNDS = 6;
-		
-		final boolean saveSolution = false;
 		
 		readFromJSON();
-			
-		Tournament tournament = new Tournament(players, NB_ROUNDS);
 		
-		// Moyenne de temps pour NB_SOLUTIONS solutions
-		long sum_duration = 0;
+		ArrayList<Double> results = new ArrayList<Double>();
+		ArrayList<Double> resultsMin = new ArrayList<Double>();
 		
-		// Score moyen et minimum
-		double sum_score = 0;
-		int sum_min_score = 0;
-		int sum_max_score = 0;
-		
-		for(int i=0; i<NB_SOLUTIONS; i++) {
+		for(int solNumber=0; solNumber<=0; solNumber++) {
 			
-			// Solution
-			long startTime = System.nanoTime();
+			float FORGOTTEN_PERCENT = (float) solNumber/100;
 			
-//			System.out.println(tournament.getMatchesTable());
+			Tournament tournament = new Tournament(players, NB_ROUNDS, (float) 0.1, FORGET_TURNS_NUMBER, null);
 			
-			tournament.createMatches();
+			// Moyenne de temps pour NB_SOLUTIONS solutions
+			long sum_duration = 0;
 			
-			long timeElapsed = System.nanoTime() - startTime;
-			sum_duration += timeElapsed;
+			// Score moyen et minimum
+			double sum_score = 0;
+			int sum_min_score = 0;
+			int sum_max_score = 0;
 			
-			// Calcul des scores
-			tournament.computeScores();
-			
-			double score = tournament.getAverageScore();
-			int min_score = tournament.getMinScore();
-			int max_score = tournament.getMaxScore();
-			
-			sum_score += score;
-			sum_min_score += min_score;
-			sum_max_score += max_score;
-			
-			boolean correct = tournament.checkSolution();
-			
-			System.out.println("Solution " + (i+1) + " trouvée en " + (float)timeElapsed/1000000.0 + " ms"
-					+ " / Score moyen : " + score + " / Score minimum : " + min_score + " / Score maximum : " + max_score + " / Correct : " + correct);
-			
-			if(saveSolution) {
-				try {
-					System.out.print("Sauvegarde de la solution " + (i+1) + "... ");
-					tournament.saveSolution("solution" + (i+1) + ".txt");
-					System.out.println("Solution " + (i+1) + " sauvegardée.");
-				} catch (IOException e) {
-					System.err.println("Erreur lors de la sauvegarde du fichier.");
+			for(int i=0; i<NB_SOLUTIONS; i++) {
+				
+				// Solution
+				long startTime = System.nanoTime();
+				
+	//			System.out.println(tournament.getMatchesTable());
+				
+				tournament.createMatches();
+				
+				long timeElapsed = System.nanoTime() - startTime;
+				sum_duration += timeElapsed;
+				
+				// Calcul des scores
+				tournament.computeScores();
+				
+				double score = tournament.getAverageScore();
+				int min_score = tournament.getMinScore();
+				int max_score = tournament.getMaxScore();
+				
+				sum_score += score;
+				sum_min_score += min_score;
+				sum_max_score += max_score;
+				
+				boolean correct = tournament.checkSolution();
+				
+				System.out.println("Solution " + (i+1) + " trouvée en " + (float)timeElapsed/1000000.0 + " ms"
+						+ " / Score moyen : " + score + " / Score minimum : " + min_score + " / Score maximum : " + max_score + " / Correct : " + correct);
+				
+				if(SAVE_SOLUTION) {
+					try {
+						System.out.print("Sauvegarde de la solution " + (i+1) + "... ");
+						tournament.saveSolution("solution" + (i+1) + ".txt");
+						System.out.println("Solution " + (i+1) + " sauvegardée.");
+					} catch (IOException e) {
+						System.err.println("Erreur lors de la sauvegarde du fichier.");
+					}
 				}
 			}
+			
+			
+			System.out.println("------------------------------------------------------");
+			System.out.println("Durée moyenne pour " + NB_SOLUTIONS + " solutions : " + (float)sum_duration/(float)NB_SOLUTIONS/1000000.0 + "ms");
+			System.out.println("Score moyen pour " + NB_SOLUTIONS + " solutions : " + sum_score/(float)NB_SOLUTIONS
+					+ " / Score minimal moyen pour " + NB_SOLUTIONS + " solutions : " + (float)sum_min_score/(float)NB_SOLUTIONS
+					+ " / Score maximal moyen : " + (float)sum_max_score/(float)NB_SOLUTIONS);
+			System.out.println("------------------------------------------------------");
+			
+			results.add(sum_score/(double)NB_SOLUTIONS);
+			resultsMin.add(sum_min_score/(double)NB_SOLUTIONS);
+			
+	//		System.out.println(tournament.getMatchesTable());		
 		}
 		
-		
-		System.out.println("------------------------------------------------------");
-		System.out.println("Durée moyenne pour " + NB_SOLUTIONS + " solutions : " + (float)sum_duration/(float)NB_SOLUTIONS/1000000.0 + "ms");
-		System.out.println("Score moyen pour " + NB_SOLUTIONS + " solutions : " + sum_score/(float)NB_SOLUTIONS
-				+ " / Score minimal moyen pour " + NB_SOLUTIONS + " solutions : " + (float)sum_min_score/(float)NB_SOLUTIONS
-				+ " / Score maximal moyen : " + (float)sum_max_score/(float)NB_SOLUTIONS);
-		System.out.println("------------------------------------------------------");
-		
-		
-		System.out.println(tournament.getMatchesTable());		
+//		System.out.println(results.toString());
+//		System.out.println(resultsMin.toString());
 	}
 	
 	/**
@@ -91,9 +107,6 @@ public class Heuristique {
 	 */
 	public static int readFromJSON() {
 		int nbEleves = 0;
-		
-		
-		
 		
 		// Création du JSONPArser
 		JSONParser parser = new JSONParser();
