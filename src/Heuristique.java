@@ -33,7 +33,8 @@ public class Heuristique {
 			
 			float FORGOTTEN_PERCENT = (float) solNumber/100;
 			
-			Tournament tournament = new Tournament(players, NB_ROUNDS, (float) 0.1, FORGET_TURNS_NUMBER, null);
+//			Tournament tournament = new Tournament(players, NB_ROUNDS, (float) 0.1, FORGET_TURNS_NUMBER, null);
+			Tournament tournament = new Tournament(players, NB_ROUNDS, null);
 			
 			// Moyenne de temps pour NB_SOLUTIONS solutions
 			long sum_duration = 0;

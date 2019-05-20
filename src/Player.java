@@ -2,8 +2,9 @@
 public class Player {
 
 	private int id;
-	private int classeId;
-	private String prenom;
+	private int classeId; // Utilisé pour "fusionner" deux classes si besoin
+	private int realClasseId; // Cette valeur est fixe et ne doit pas changer
+//	private String prenom;
 	private String nom;
 	
 	public Player(int id, int classeId) {
@@ -11,10 +12,11 @@ public class Player {
 		this.classeId = classeId;
 	}
 	
-	public Player(int id, int classeId, String prenom, String nom) {
+	public Player(int id, int classeId, String nom) {
 		this.id = id;
 		this.classeId = classeId;
-		this.prenom = prenom;
+		this.realClasseId = classeId; 
+//		this.prenom = prenom;
 		this.nom = nom;
 	}
 	
@@ -38,24 +40,31 @@ public class Player {
 	public void setClasseId(int classeId) {
 		this.classeId = classeId;
 	}
+	
+	
 
-	public String getPrenom() {
-		return prenom;
+//	public String getPrenom() {
+//		return prenom;
+//	}
+//
+//	public void setPrenom(String prenom) {
+//		this.prenom = prenom;
+//	}
+
+	public int getRealClasseId() {
+		return realClasseId;
 	}
 
-	public void setPrenom(String prenom) {
-		this.prenom = prenom;
-	}
-
-	public String getNom() {
-		return nom;
+	public void setRealClasseId(int realClasseId) {
+		this.realClasseId = realClasseId;
 	}
 
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
 	
-	
-	
+	public String getNom() {
+		return nom;
+	}
 	
 }

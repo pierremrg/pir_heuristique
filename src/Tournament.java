@@ -22,8 +22,8 @@ public class Tournament {
 	// On oublie les N moins bons joueurs et on refait un match
 //	private static final float FORGOTTEN_PERCENT = (float) 30/100;
 //	private static final int FORGET_TURNS_NUMBER = 1;
-	private final float forgotten_percent;
-	private final int forget_turns_number;
+//	private final float forgotten_percent;
+//	private final int forget_turns_number;
 	
 	private final int classesNumber;
 	private final int roundsNumber;
@@ -48,7 +48,7 @@ public class Tournament {
 	private ArrayList<Integer>[] possibleOpponentsId;
 	
 	@SuppressWarnings("unchecked")
- 	public Tournament(ArrayList<Player> ps, int roundsNumber, float forgotten_percent, int forget_turns_number, GUI gui) {
+ 	public Tournament(ArrayList<Player> ps, int roundsNumber, GUI gui) {
 		this.gui = gui;
 		
 		this.players = ps;
@@ -94,8 +94,8 @@ public class Tournament {
 		scores = new int[playersNumber];
 		
 		// Amélioration
-		this.forgotten_percent = forgotten_percent;
-		this.forget_turns_number = forget_turns_number;
+//		this.forgotten_percent = forgotten_percent;
+//		this.forget_turns_number = forget_turns_number;
 	}
 	
 	// Indique si la solution est correcte
@@ -241,13 +241,25 @@ public class Tournament {
 	
 	public void createMatches() {
 		
+//		System.out.println(players.size());
+		// TODO Gérer si nombre impair !
+		
 //		System.out.println("Génération des matches (" + playersNumber + " joueurs / " + classesNumber + " classes / " + roundsNumber + " rounds)...");
 		
 		long startTime = System.nanoTime();
 		
 		int playerOKCount = 0;
 		
+		int tries = 0;
+		
 		while(playerOKCount < playersNumber) {
+			
+			tries++;
+//			System.out.println(tries);
+			if(tries > 5000) {
+				System.out.println("PAS DE MATCH POSSIBLE !");
+				tries = 0;
+			}
 			
 			playerOKCount = 0;
 			createBaseMatches();
@@ -268,9 +280,11 @@ public class Tournament {
 			
 		}
 		
-		computeScores();
+//		System.out.println("Tries: " + tries);
+		
+		/*computeScores();
 		double oldAverage = getAverageScore();
-		System.out.println(getMatchesTable());
+//		System.out.println(getMatchesTable());
 		
 //		int oldMatches[][] = copyBidimensionalArray(matches);
 		
@@ -286,6 +300,8 @@ public class Tournament {
 			
 			while(playerOKCount < playersNumber) {
 				
+				tries++;
+				
 				matches = copyBidimensionalArray(oldMatches);
 				doneMatches = copyArrayOfArrayList(oldDoneMatches);
 				
@@ -294,8 +310,8 @@ public class Tournament {
 					resetMatches(i);
 				}
 				
-				System.out.println("here: " + playerOKCount);
-				System.out.println(getMatchesTable());
+//				System.out.println("here: " + playerOKCount);
+//				System.out.println(getMatchesTable());
 				
 				playerOKCount = playersNumber - getNotCompletedPlayersNumber();
 				
@@ -318,8 +334,9 @@ public class Tournament {
 				}
 				
 			}
-			
+		
 		}
+		
 		
 //		computeScores();
 //		double newAverage = getAverageScore();
@@ -328,20 +345,12 @@ public class Tournament {
 //		System.out.println(newAverage + " / " + oldAverage);
 //		
 //		System.out.println(diffAverage);
-		
-		
-		
-		/*
-		 * TODO Suite :
-		 * Séparer la fonction createMatches (pour appeler avec différents players) OK
-		 * Créer fonction : récupérer les IDs des joueurs à relancer + RAZ de leur match
-		 * Matcher pour les IDs retournés
-		 * Modifier la fonction createMatches pour relancer le nombre de fois nécessaire l'étape précédente
-		 */
+		*/
 
 		long timeElapsed = System.nanoTime() - startTime;
 		gui.writeConsole("Matches créés pour " + playersNumber + " joueurs et " + roundsNumber + " rounds en " + (float)timeElapsed/1000000.0 + " ms");
 		//System.out.println((float) timeElapsed/1000000.0 + " ms pour " + playersNumber + " joueurs");
+		System.out.println(timeElapsed);
 	}
 	
 	/**
@@ -389,6 +398,7 @@ public class Tournament {
 				// Choix de l'adversaire au hasard
 //				int randomNum = rand.nextInt((max - min) + 1) + min;
 //				int advId = rand.nextInt((players.size() - 1) + 1);
+				// TODO on peut le déplacer avant, non ?
 				int advId = possibleOpponentsId[classeId].get(rand.nextInt(opponentsSize));
 				
 				// Si les deux joueurs pas dans la même classe et qu'aucun match n'est prévu
@@ -409,9 +419,9 @@ public class Tournament {
 		return changed;
 	}
 	
-	/**
+	/*/**
 	 * Retourne les N plus mauvais tirages (selon FORGOTTEN_PERCENT)
-	 */
+	 *
 	private ArrayList<Integer> getPlayerIdsToForget() {
 		
 		ArrayList<Integer> playerIdsToForget = new ArrayList<Integer>();
@@ -483,9 +493,32 @@ public class Tournament {
 		}
 		
 		return notCompleted;
+	}*/
+	
+	/**
+	 * Divise la plus grande classe en deux (la classe d'origine + rajoute une nouvelle classe)
+	 */
+	// TODO private
+	public void divideBiggestClass() {
+		
+		System.out.println(getMatchesTable());
+		
+		ArrayList<Integer> tempClasseSize = new ArrayList<Integer>(classeSize);
+		int maxClasseId = tempClasseSize.indexOf(Collections.max(tempClasseSize));
+		
+		int newClasseId = classeSize.size();
+		
+		for(Player p : players) {
+			if(p.getClasseId() == maxClasseId && p.getId() % 2 == 0)
+				p.setClasseId(newClasseId);
+		}
+		
+		
+		Tournament newTournament = new Tournament(players, roundsNumber, gui);
+		
+		System.out.println(newTournament.getMatchesTable());
+		
 	}
-	
-	
 	
 	
 	

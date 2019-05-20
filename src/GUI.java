@@ -41,6 +41,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import javax.swing.KeyStroke;
+import java.awt.event.KeyEvent;
 
 public class GUI {
 
@@ -49,11 +51,14 @@ public class GUI {
 	public JTable matchsTable;
 	
 	private Tournament tournament;
-	private static ArrayList<Player> players = new ArrayList<>();
+	private static ArrayList<Player> allPlayers = new ArrayList<>();
+	private static ArrayList<Player> players1 = new ArrayList<>();
+	private static ArrayList<Player> players2 = new ArrayList<>();
+	private static ArrayList<Player> players3 = new ArrayList<>();
 	
 	final int NB_SOLUTIONS = 1;
 //	final int NB_PLAYERS = 200;
-	final int NB_ROUNDS = 6;
+	final int NB_ROUNDS = 11;
 	
 	private static final float FORGOTTEN_PERCENT = (float) 30/100;
 	private static final int FORGET_TURNS_NUMBER = 0;
@@ -146,7 +151,8 @@ public class GUI {
 		
 //		readFromJSON();
 		
-		tournament = new Tournament(players, NB_ROUNDS, FORGOTTEN_PERCENT, FORGET_TURNS_NUMBER, this);
+//		tournament = new Tournament(players1, NB_ROUNDS, FORGOTTEN_PERCENT, FORGET_TURNS_NUMBER, this);
+		tournament = new Tournament(players1, NB_ROUNDS, this);
 		//tournament.createMatches();
 		
 	}
@@ -289,6 +295,7 @@ public class GUI {
 		
 		JMenuItem mntmChargerLesJoueurs = new JMenuItem("Charger les joueurs");
 		mntmChargerLesJoueurs.addActionListener(new ActionListener() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				File playersFile = openPlayersFile();
@@ -301,12 +308,24 @@ public class GUI {
 					
 				DefaultListModel<String> playerNames = new DefaultListModel<String>();
 				
-				for(Player p : players) {
-					playerNames.addElement(p.getPrenom() + " " + p.getNom());
-//					playerNames.addElement(p.getId() + " [" + p.getClasseId() + "]");
-				}
-				
+				for(Player p : allPlayers)
+					playerNames.addElement(p.getNom());
 				listAllPlayers.setModel(playerNames);
+				
+				playerNames = new DefaultListModel<String>();
+				for(Player p : players1)
+					playerNames.addElement(p.getNom());
+				listPlayers1.setModel(playerNames);
+				
+				playerNames = new DefaultListModel<String>();
+				for(Player p : players2)
+					playerNames.addElement(p.getNom());
+				listPlayers2.setModel(playerNames);
+				
+				playerNames = new DefaultListModel<String>();
+				for(Player p : players3)
+					playerNames.addElement(p.getNom());
+				listPlayers3.setModel(playerNames);
 				
 				writeConsole("Joueurs chargés");
 			}
@@ -314,16 +333,30 @@ public class GUI {
 		mnTournoi.add(mntmChargerLesJoueurs);
 		
 		JMenuItem mntmCrerLesMatchs = new JMenuItem("Cr\u00E9er les matchs");
+		mntmCrerLesMatchs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0));
 		mntmCrerLesMatchs.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				readFromJSON(null);
 				initTournament();
-				tournament.createMatches();
+				for(int i=0; i<105; i++)
+					tournament.createMatches();
 				displayMatchsTable();
 			}
 		});
 		mnTournoi.add(mntmCrerLesMatchs);
+		
+		JMenuItem mntmTest = new JMenuItem("Test");
+		mntmTest.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0));
+		mntmTest.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				readFromJSON(null);
+				initTournament();
+				tournament.divideBiggestClass();
+			}
+		});
+		mnTournoi.add(mntmTest);
 		
 //		tournament.setGUI(this);
 	}
@@ -360,7 +393,9 @@ public class GUI {
 	public static int readFromJSON(File playersFile) {
 		int nbEleves = 0;
 		
-		players.clear();
+		players1.clear();
+		players2.clear();
+		players3.clear();
 		
 		// TODO Gérer enabled/disabled
 		
@@ -371,27 +406,43 @@ public class GUI {
 		try {
 			obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
 //			obj = (JSONObject) parser.parse(new FileReader(playersFile));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
+		} catch (IOException | ParseException e) {
 			e.printStackTrace();
 		}
 
 		// Récupération de toutes les classes
 		JSONArray classes = (JSONArray) obj.get("classe");
+		
 		// Pour chaque classe
 		for(Object o : classes) {
+			
 			JSONObject classe = (JSONObject) o;
+			
 			// On récupère chaque eleve
 			JSONArray eleves = (JSONArray) classe.get("eleve");
+			
 			for (Object e : eleves) {
 				JSONObject eleve = (JSONObject) e;
 				
-				Player p = new Player(Integer.parseInt((String)eleve.get("id")), Integer.parseInt((String)classe.get("id")),
-						(String) eleve.get("prenom"), (String) eleve.get("nom"));
-				players.add(p);
+				Player p = new Player(
+						Integer.parseInt((String) eleve.get("id")),
+						Integer.parseInt((String) classe.get("id")),
+						(String) eleve.get("nom")
+				);
+				
+				allPlayers.add(p);
+				
+				int niveau = Integer.parseInt((String) eleve.get("niveau"));
+				
+				if(niveau == 1)
+					players1.add(p);
+				
+				else if(niveau == 2)
+					players2.add(p);
+				
+				else
+					players3.add(p);
+				
 				nbEleves++;
 			}
 		}
@@ -418,12 +469,12 @@ public class GUI {
         matchsTable.setTableHeader(null);
         matchsTable.setModel(dtm);
         
-        players = tournament.getPlayers();
+        players1 = tournament.getPlayers();
         
-        String[] headers = new String[players.size() + 1];
+        String[] headers = new String[players1.size() + 1];
         headers[0] = "";
-        for(int i=0; i<players.size(); i++)
-        	headers[i+1] = players.get(i).getId() + " [" + players.get(i).getClasseId() + "]";
+        for(int i=0; i<players1.size(); i++)
+        	headers[i+1] = players1.get(i).getId() + " [" + players1.get(i).getClasseId() + "]";
         
         dtm.setColumnIdentifiers(headers); // Doit etre mis avant d'ajouter les donnees !
         
@@ -431,9 +482,9 @@ public class GUI {
         
         int[][] matches = tournament.getMatches();
         
-        for(int i=0; i<players.size(); i++) {
+        for(int i=0; i<players1.size(); i++) {
         	
-        	Object[] data = new Object[players.size() + 1];
+        	Object[] data = new Object[players1.size() + 1];
         	
 //        	Object[] data = ArrayUtil.toObject(matches[i]);
 //        	DefaultTableModel.con
@@ -441,9 +492,9 @@ public class GUI {
 //			Vector<Integer> data = new Vector(Arrays.asList(matches[i]));
 //        	dtm.addRow(data);
         	
-        	data[0] = players.get(i).getId() + " [" + players.get(i).getClasseId() + "]";
+        	data[0] = players1.get(i).getId() + " [" + players1.get(i).getClasseId() + "]";
         	
-        	for(int j=0; j<players.size(); j++) {
+        	for(int j=0; j<players1.size(); j++) {
         		data[j+1] = (matches[i][j] != 0) ? matches[i][j] : "";
         		
         		
