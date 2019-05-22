@@ -29,6 +29,19 @@
 			"id":"1",
 			"prof":"machin",
 			"eleve":[
+				{"id":"10", "nom":"nom10", "niveau":"1" },
+				{"id":"11", "nom":"nom11", "niveau":"1" },
+				{"id":"12", "nom":"nom12", "niveau":"1" },
+				{"id":"13", "nom":"nom13", "niveau":"1" },
+				{"id":"14", "nom":"nom14", "niveau":"1" },
+				{"id":"15", "nom":"nom15", "niveau":"1" },
+				{"id":"16", "nom":"nom16", "niveau":"1" }
+			]
+		},
+		{
+			"id":"1",
+			"prof":"machin",
+			"eleve":[
 				{"id":"17", "nom":"nom17", "niveau":"1" },
 				{"id":"18", "nom":"nom18", "niveau":"1" },
 				{"id":"19", "nom":"nom19", "niveau":"1" },
@@ -37,7 +50,7 @@
 				{"id":"22", "nom":"nom22", "niveau":"2" },
 				{"id":"23", "nom":"nom23", "niveau":"3" },
 				{"id":"24", "nom":"nom24", "niveau":"3" },
-				{"id":"25", "nom":"nom25", "niveau":"3" }
+
 			]
 		},
 		{
@@ -54,6 +67,12 @@
 				{"id":"33", "nom":"nom33", "niveau":"2" },
 				{"id":"34", "nom":"nom34", "niveau":"3" },
 				{"id":"35", "nom":"nom35", "niveau":"3" },
+			]
+		},
+		{
+			"id":"4",
+			"prof":"machin",
+			"eleve":[
 				{"id":"36", "nom":"nom36", "niveau":"1" },
 				{"id":"37", "nom":"nom37", "niveau":"1" },
 				{"id":"38", "nom":"nom38", "niveau":"2" },
@@ -88,6 +107,7 @@
 		},
 		{
 			"id":"4",
+
 			"prof":"machin",
 			"eleve":[
 				{"id":"60", "nom":"nom60", "niveau":"1" },
@@ -143,6 +163,7 @@
 				{"id":"104", "nom":"nom104", "niveau":"3" },
 			]
 		},
+
 		{
 			"id":"6",
 			"prof":"machin",
