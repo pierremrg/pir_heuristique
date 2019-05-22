@@ -48,17 +48,25 @@ public class GUI {
 
 	private JFrame frame;
 	public JTextPane console;
-	public JTable matchsTable;
+	public JTable matchsTable1;
+	public JTable matchsTable2;
+	public JTable matchsTable3;
+
 	
-	private Tournament tournament;
+	private Tournament tournament1;
+	private Tournament tournament2;
+	private Tournament tournament3;
+	
 	private static ArrayList<Player> allPlayers = new ArrayList<>();
 	private static ArrayList<Player> players1 = new ArrayList<>();
 	private static ArrayList<Player> players2 = new ArrayList<>();
 	private static ArrayList<Player> players3 = new ArrayList<>();
 	
+	File playersFile ;
+	
 	final int NB_SOLUTIONS = 1;
 //	final int NB_PLAYERS = 200;
-	final int NB_ROUNDS = 11;
+	final int NB_ROUNDS = 6;
 	
 	private static final float FORGOTTEN_PERCENT = (float) 30/100;
 	private static final int FORGET_TURNS_NUMBER = 0;
@@ -152,7 +160,10 @@ public class GUI {
 //		readFromJSON();
 		
 //		tournament = new Tournament(players1, NB_ROUNDS, FORGOTTEN_PERCENT, FORGET_TURNS_NUMBER, this);
-		tournament = new Tournament(players1, NB_ROUNDS, this);
+		tournament1 = new Tournament(players1, NB_ROUNDS, this);
+		tournament2 = new Tournament(players2, NB_ROUNDS, this);
+		tournament3 = new Tournament(players3, NB_ROUNDS, this);
+
 		//tournament.createMatches();
 		
 	}
@@ -248,10 +259,14 @@ public class GUI {
 		JScrollPane scrollPane_5 = new JScrollPane();
 		panel_4.add(scrollPane_5);
 		
-		matchsTable = new JTable();
-		matchsTable.setRowSelectionAllowed(false);
-		matchsTable.setEnabled(false);
-		scrollPane_5.setViewportView(matchsTable);
+		matchsTable1 = new JTable();
+		matchsTable1.setRowSelectionAllowed(false);
+		matchsTable1.setEnabled(false);
+		scrollPane_5.setViewportView(matchsTable1);
+		
+		
+		
+		
 //		displayMatchsTable();
 //		matchsTable.setDefaultRenderer(String.class, new MyRenderer());
 		
@@ -298,7 +313,7 @@ public class GUI {
 			@SuppressWarnings("unchecked")
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				File playersFile = openPlayersFile();
+				playersFile = openPlayersFile();
 				
 				if(playersFile == null)
 					return;
@@ -340,7 +355,35 @@ public class GUI {
 				readFromJSON(null);
 				initTournament();
 				for(int i=0; i<105; i++)
-					tournament.createMatches();
+				{
+					tournament1.createMatches();
+					tournament2.createMatches();
+					tournament3.createMatches();
+				}
+				
+				/// PDF
+					// ------------- creation du tournoi
+					String path = "C:\\Users\\loica\\Documents\\GitHub\\pir_heuristique\\donnees_eleves.json" ;
+					Tournoi tournoi = JSONExtractor.ExtractJSON(path);
+					//---------------  ajoute les rounds
+					tournoi.addNbRound(tournament1);
+					tournoi.addAllRoundNiv(tournament1,1) ;
+					tournoi.addAllRoundNiv(tournament2,2) ;
+					tournoi.addAllRoundNiv(tournament3,3) ;
+					// -------------- ajoute les tables
+					tournoi.addTables() ;
+
+				try
+				{
+					PDFGen.createPDF(tournoi);
+
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+				}
+				
+				
 				displayMatchsTable();
 			}
 		});
@@ -353,7 +396,9 @@ public class GUI {
 			public void actionPerformed(ActionEvent arg0) {
 				readFromJSON(null);
 				initTournament();
-				tournament.divideBiggestClass();
+				tournament1.divideBiggestClass();
+				tournament2.divideBiggestClass();
+				tournament3.divideBiggestClass();
 			}
 		});
 		mnTournoi.add(mntmTest);
@@ -404,8 +449,9 @@ public class GUI {
 		JSONParser parser = new JSONParser();
 		JSONObject obj = null;
 		try {
-			obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
-//			obj = (JSONObject) parser.parse(new FileReader(playersFile));
+			obj = (JSONObject) parser.parse(new FileReader("C:\\Users\\loica\\Documents\\GitHub\\pir_heuristique\\donnees_eleves.json"));
+		//	obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
+			//		obj = (JSONObject) parser.parse(new FileReader(playersFile));
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
 		}
@@ -466,10 +512,10 @@ public class GUI {
         
 //        String[] headers = {"Prénom", "Nom", "Couleur favorite", "Homme"};
 //        dtm.setColumnIdentifiers(headers);
-        matchsTable.setTableHeader(null);
-        matchsTable.setModel(dtm);
+        matchsTable1.setTableHeader(null);
+        matchsTable1.setModel(dtm);
         
-        players1 = tournament.getPlayers();
+        players1 = tournament1.getPlayers();
         
         String[] headers = new String[players1.size() + 1];
         headers[0] = "";
@@ -480,7 +526,7 @@ public class GUI {
         
 //        dtm.addRow(new Object[] {"toto", "toto", "toto", "toto"});
         
-        int[][] matches = tournament.getMatches();
+        int[][] matches = tournament1.getMatches();
         
         for(int i=0; i<players1.size(); i++) {
         	
