@@ -58,7 +58,7 @@ public class GUI {
 	
 	final int NB_SOLUTIONS = 1;
 //	final int NB_PLAYERS = 200;
-	final int NB_ROUNDS = 11;
+	final int NB_ROUNDS = 12;
 	
 	private static final float FORGOTTEN_PERCENT = (float) 30/100;
 	private static final int FORGET_TURNS_NUMBER = 0;
