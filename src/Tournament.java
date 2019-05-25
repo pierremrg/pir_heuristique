@@ -377,7 +377,7 @@ public class Tournament {
 		long timeElapsed = System.nanoTime() - startTime;
 		gui.writeConsole("Matches créés pour " + playersNumber + " joueurs et " + roundsNumber + " rounds en " + (float)timeElapsed/1000000.0 + " ms");
 		//System.out.println((float) timeElapsed/1000000.0 + " ms pour " + playersNumber + " joueurs");
-		System.out.println(timeElapsed);
+		//System.out.println(timeElapsed);
 	}
 	
 	/**
@@ -690,6 +690,11 @@ public class Tournament {
 	
 	public int[][] getMatches(){
 		return matches;
+	}
+	
+	public int getNbRounds()
+	{
+		return this.roundsNumber ;
 	}
 	
 	public void setGUI(GUI gui) {
