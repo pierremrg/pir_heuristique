@@ -339,7 +339,7 @@ public class GUI {
 			public void actionPerformed(ActionEvent arg0) {
 				readFromJSON(null);
 				initTournament();
-				for(int i=0; i<105; i++)
+//				for(int i=0; i<105; i++)
 					tournament.createMatches();
 				displayMatchsTable();
 			}

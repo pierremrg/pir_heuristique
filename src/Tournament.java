@@ -279,7 +279,13 @@ public class Tournament {
 			if(tries > 5000) {
 				// TODO Gérer message d'erreur
 				System.out.println("PAS DE MATCH POSSIBLE !");
+				
+				// TODO Division des classes
+				gui.displayMatchsTable();
+				
 				tries = 0;
+				
+				return; // TODO A supprimer
 			}
 			
 			playerOKCount = 0;
@@ -524,8 +530,6 @@ public class Tournament {
 	 */
 	// TODO private
 	public void divideBiggestClass() {
-		
-		System.out.println(getMatchesTable());
 		
 		ArrayList<Integer> tempClasseSize = new ArrayList<Integer>(classeSize);
 		int maxClasseId = tempClasseSize.indexOf(Collections.max(tempClasseSize));
