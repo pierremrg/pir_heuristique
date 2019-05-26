@@ -354,24 +354,22 @@ public class GUI {
 			public void actionPerformed(ActionEvent arg0) {
 				readFromJSON(null);
 				initTournament();
-				for(int i=0; i<105; i++)
-				{
-					tournament1.createMatches();
-					tournament2.createMatches();
-					tournament3.createMatches();
-				}
-				
-				/// PDF
-					// ------------- creation du tournoi
-					String path = "C:\\Users\\loica\\Documents\\GitHub\\pir_heuristique\\donnees_eleves.json" ;
-					Tournoi tournoi = JSONExtractor.ExtractJSON(path);
-					//---------------  ajoute les rounds
-					tournoi.addNbRound(tournament1);
-					tournoi.addAllRoundNiv(tournament1,1) ;
-					tournoi.addAllRoundNiv(tournament2,2) ;
-					tournoi.addAllRoundNiv(tournament3,3) ;
-					// -------------- ajoute les tables
-					tournoi.addTables() ;
+
+				tournament1.createMatches();
+				tournament2.createMatches();
+				tournament3.createMatches();
+			
+			/// PDF
+				// ------------- creation du tournoi
+				String path = "./donnees_eleves.json" ;
+				Tournoi tournoi = JSONExtractor.ExtractJSON(path);
+				//---------------  ajoute les rounds
+				tournoi.addNbRound(tournament1);
+				tournoi.addAllRoundNiv(tournament1,1) ;
+				tournoi.addAllRoundNiv(tournament2,2) ;
+				tournoi.addAllRoundNiv(tournament3,3) ;
+				// -------------- ajoute les tables
+				tournoi.addTables() ;
 
 				try
 				{
@@ -382,7 +380,6 @@ public class GUI {
 				{
 					e.printStackTrace();
 				}
-				
 				
 				displayMatchsTable();
 			}
@@ -449,8 +446,7 @@ public class GUI {
 		JSONParser parser = new JSONParser();
 		JSONObject obj = null;
 		try {
-			obj = (JSONObject) parser.parse(new FileReader("C:\\Users\\loica\\Documents\\GitHub\\pir_heuristique\\donnees_eleves.json"));
-		//	obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
+			obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
 			//		obj = (JSONObject) parser.parse(new FileReader(playersFile));
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();

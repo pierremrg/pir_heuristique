@@ -23,13 +23,17 @@ import org.json.simple.JSONObject ;
 
 public class PDFGen 
 {
+	private static final String OUTPUT_DIR = "./pdf/";
 	
 	// -------------------------- METHODE PRINCIPALE -------------------------------
 	public static void createPDF (Tournoi tournoi) throws DocumentException, IOException 
 	{
+		File directory = new File(OUTPUT_DIR);
+	    if(!directory.exists())
+	        directory.mkdir();
+		
 		// -------- partie json		
-		String path = "C:\\Users\\loica\\Documents\\GitHub\\pir_heuristique\\donnees_eleves.json" ;
-	
+		String path = OUTPUT_DIR + "donnees_eleves.json" ;
 		
 		// -------- creation des documents pdf
 		createDocListeClasses(tournoi) ;
@@ -120,7 +124,7 @@ public class PDFGen
 		// --------- declarations
 		// Creation du document
 		Document doc = new Document();
-		String chemin = "C:\\Users\\loica\\Documents\\GitHub\\pir_heuristique\\ListeClasses.pdf" ;
+		String chemin = OUTPUT_DIR + "ListeClasses.pdf" ;
 		FileOutputStream output = new FileOutputStream(chemin) ;
 		
 		// --------- ouvre le doc
@@ -226,7 +230,7 @@ public class PDFGen
 		// --------- déclarations
 		// Creation du document
 		Document doc = new Document();
-		String chemin = "C:\\Users\\loica\\Documents\\GitHub\\pir_heuristique\\ListeNiveaux.pdf" ;
+		String chemin = OUTPUT_DIR + "ListeNiveaux.pdf" ;
 		FileOutputStream output = new FileOutputStream(chemin) ;
 					
 		// -------- ouvre le doc
@@ -313,7 +317,7 @@ public class PDFGen
 		// --------- déclarations
 		// Creation du document
 		Document doc = new Document();
-		String chemin = "C:\\Users\\loica\\Documents\\GitHub\\pir_heuristique\\FicheProf.pdf" ;
+		String chemin = OUTPUT_DIR + "FicheProf.pdf" ;
 		FileOutputStream output = new FileOutputStream(chemin) ;
 					
 		// -------- ouvre le doc
@@ -454,7 +458,7 @@ public class PDFGen
 		// --------- déclarations
 		// Creation du document
 		Document doc = new Document();
-		String chemin = "C:\\Users\\loica\\Documents\\GitHub\\pir_heuristique\\ListeMatches.pdf" ;
+		String chemin = OUTPUT_DIR + "ListeMatches.pdf" ;
 		FileOutputStream output = new FileOutputStream(chemin) ;
 						
 		// -------- ouvre le doc
@@ -604,7 +608,7 @@ public class PDFGen
 		// --------- déclarations
 		// Creation du document
 		Document doc = new Document();
-		String chemin = "C:\\Users\\loica\\Documents\\GitHub\\pir_heuristique\\FichesEleves.pdf" ;
+		String chemin = OUTPUT_DIR + "FichesEleves.pdf" ;
 		FileOutputStream output = new FileOutputStream(chemin) ;
 						
 		// -------- ouvre le doc

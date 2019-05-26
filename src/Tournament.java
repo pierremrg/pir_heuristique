@@ -164,7 +164,7 @@ public class Tournament {
 	@SuppressWarnings("unchecked")
 	private void generatePossibleOpponents() {
 		
-		possibleOpponentsId = new ArrayList[classesNumber];
+		possibleOpponentsId = new ArrayList[players.size()];
 		
 		// Tableau qui contient tous les IDs
 		ArrayList<Integer> allPlayersIds = new ArrayList<Integer>();
@@ -172,17 +172,37 @@ public class Tournament {
 		for(int i=0; i<playersNumber; i++)
 			allPlayersIds.add(i);
 		
-		for(int classe=0; classe<classesNumber; classe++) {
-			possibleOpponentsId[classe] = new ArrayList<Integer>(allPlayersIds);
-
-			for(int i=0; i<classPlayersId[classe].size(); i++) {
-				possibleOpponentsId[classe].remove(classPlayersId[classe].get(i));
+//		for(int classe=0; classe<classesNumber; classe++) {
+//			possibleOpponentsId[classe] = new ArrayList<Integer>(allPlayersIds);
+//
+//			for(int i=0; i<classPlayersId[classe].size(); i++) {
+//				possibleOpponentsId[classe].remove(classPlayersId[classe].get(i));
+//			}
+//			
+////			System.out.println(possibleOpponents.toString());
+////			System.out.println(allPlayersIds.toString());
+//		}m
+		
+		
+		for(int i=0; i<playersNumber; i++) {
+			
+			possibleOpponentsId[i] = new ArrayList<Integer>(allPlayersIds);
+			
+			for(int j=0; j<classPlayersId[players.get(i).getClasseId()].size(); j++) {
+				possibleOpponentsId[i].remove(classPlayersId[players.get(i).getClasseId()].get(j));
 			}
 			
-//			System.out.println(possibleOpponents.toString());
-//			System.out.println(allPlayersIds.toString());
+			ArrayList<Integer> tmp = new ArrayList<Integer>(possibleOpponentsId[i]);
+			
+//			for(int j=0; j<playersNumber; j++) {
+			for(int j : tmp) {
+				if(!colorsMatch(i, j))
+					possibleOpponentsId[i].remove(possibleOpponentsId[i].indexOf(j));
+			}
+			
 		}
-		
+
+//		System.out.println(possibleOpponentsId[1]);
 	}
 	
 	// Classe les joueurs selon leur classe
@@ -257,8 +277,15 @@ public class Tournament {
 			tries++;
 //			System.out.println(tries);
 			if(tries > 5000) {
+				// TODO Gérer message d'erreur
 				System.out.println("PAS DE MATCH POSSIBLE !");
+				
+				// TODO Division des classes
+				gui.displayMatchsTable();
+				
 				tries = 0;
+				
+				return; // TODO A supprimer
 			}
 			
 			playerOKCount = 0;
@@ -366,8 +393,9 @@ public class Tournament {
 		
 		Random rand = new Random();
 		
-		int classeId = players.get(i).getClasseId();
-		int opponentsSize = possibleOpponentsId[classeId].size();
+//		int classeId = players.get(i).getClasseId();
+//		int opponentsSize = possibleOpponentsId[classeId].size();
+		int opponentSize = possibleOpponentsId[i].size();
 		
 		// On essaie d'attribuer tous les rounds sur la ligne
 		for(int round=1; round<=roundsNumber; round++) {
@@ -398,11 +426,13 @@ public class Tournament {
 				// Choix de l'adversaire au hasard
 //				int randomNum = rand.nextInt((max - min) + 1) + min;
 //				int advId = rand.nextInt((players.size() - 1) + 1);
-				// TODO on peut le déplacer avant, non ?
-				int advId = possibleOpponentsId[classeId].get(rand.nextInt(opponentsSize));
+//				int advId = possibleOpponentsId[classeId].get(rand.nextInt(opponentsSize));
+//				int advId = possibleOpponentsId.get(rand.nextInt(opponentSize));
+				int advId = possibleOpponentsId[i].get(rand.nextInt(opponentSize));
 				
 				// Si les deux joueurs pas dans la même classe et qu'aucun match n'est prévu
-				if(matches[i][advId] == 0 && colorsMatch(i, advId) && !doneMatches[advId].contains(round)) {
+//				if(matches[i][advId] == 0 && colorsMatch(i, advId) && !doneMatches[advId].contains(round)) {
+				if(matches[i][advId] == 0 && !doneMatches[advId].contains(round)) {
 					matches[i][advId] = round;
 					matches[advId][i] = round;
 					doneMatches[i].add(round);
@@ -500,8 +530,6 @@ public class Tournament {
 	 */
 	// TODO private
 	public void divideBiggestClass() {
-		
-		System.out.println(getMatchesTable());
 		
 		ArrayList<Integer> tempClasseSize = new ArrayList<Integer>(classeSize);
 		int maxClasseId = tempClasseSize.indexOf(Collections.max(tempClasseSize));
