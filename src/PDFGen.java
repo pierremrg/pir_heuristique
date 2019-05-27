@@ -63,6 +63,7 @@ public class PDFGen
 		// ajoute nom du prof au tableau
 		PdfPCell cell = new PdfPCell(new Phrase(classe.getProf())) ;
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		cell.setColspan(2);
 		cell.setBackgroundColor(classe.getCouleur());
 		tab.addCell(cell);
@@ -79,6 +80,7 @@ public class PDFGen
 				String nb = Integer.toString(eleve.getId()) ;
 				cell = new PdfPCell(new Phrase(nb)) ;
 				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 				tab.addCell(cell);
 			}
 			// on ajoute au tableau
@@ -147,19 +149,23 @@ public class PDFGen
 		PdfPCell cell = new PdfPCell(new Phrase(classe.getProf())) ;
 		cell.setColspan(6);
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		cell.setBackgroundColor(classe.getCouleur());
 		tab.addCell(cell);
 		
 		// légende
 		cell = new PdfPCell(new Phrase ("ID Eleve")) ;
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		tab.addCell(cell);
 		cell = new PdfPCell(new Phrase("Nom de l'élève")) ;
 		cell.setColspan(4);
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		tab.addCell(cell);
 		cell = new PdfPCell(new Phrase("Niveau")) ;
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		tab.addCell(cell) ;
 		
 		// pour chaque eleve
@@ -174,6 +180,7 @@ public class PDFGen
 			String nb = Integer.toString(eleve.getId()) ;
 			cell = new PdfPCell(new Phrase(nb));
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			tab.addCell(cell);
 			cell = new PdfPCell(new Phrase(eleve.getNom())) ;
 			cell.setColspan(4);
@@ -181,6 +188,7 @@ public class PDFGen
 			nb = Integer.toString(eleve.getNiveau()) ;
 			cell = new PdfPCell(new Phrase(nb));
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			tab.addCell(cell);
 		}		
 	}
@@ -276,6 +284,7 @@ public class PDFGen
 			PdfPCell cell = new PdfPCell(new Phrase(texte)) ;
 			cell.setColspan(tournoi.getNbClasses());
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			tabNiveau.addCell(cell);
 
 			
@@ -371,6 +380,7 @@ public class PDFGen
 			cell = new PdfPCell(new Phrase("Niveau "+ i)) ;
 			cell.setColspan(1);
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			tabListe.addCell(cell) ;
 			// On recupere le tableau d'eleves du niveau i
 			PdfPTable tabEleves = new PdfPTable(1);
@@ -388,6 +398,7 @@ public class PDFGen
 			cell.setColspan(6);
 			cell.setRowspan(2);
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			tabRound.addCell(cell);
 			// nb de round
 			for (int j=1;j<7;j++)
@@ -397,6 +408,7 @@ public class PDFGen
 				cell.setColspan(1);
 				cell.setRowspan(1);
 				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 				tabRound.addCell(cell);
 			}
 			// ajout de cases vides
@@ -416,6 +428,7 @@ public class PDFGen
 			// legende total
 			cell = new PdfPCell(new Phrase("Total")) ;
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			tabTotal.addCell(cell) ;
 			// ajout de cases vides
 			for(int n=0;n<nbVide+1;n++)
@@ -488,13 +501,13 @@ public class PDFGen
 		PdfPCell cell = new PdfPCell(new Phrase("Table")) ;
 		cell.setRowspan(2);
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		cell.setVerticalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		tab.addCell(cell);
 		// ajoute la légende eleves
 		cell = new PdfPCell(new Phrase("Elève")) ;
 		cell.setRowspan(2);
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-		cell.setVerticalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		tab.addCell(cell);
 			
 		// ajout des numeros de rounds
@@ -503,6 +516,7 @@ public class PDFGen
 			String nb = Integer.toString(i);
 			cell = new PdfPCell(new Phrase("Round " + nb));
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			cell.setRowspan(1);
 			tab.addCell(cell);
 		}
@@ -510,6 +524,7 @@ public class PDFGen
 		// ajout de la case legende adversaire
 		cell = new PdfPCell(new Phrase("Adversaire"));
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		cell.setColspan(nbRound);
 		cell.setRowspan(1);
 		tab.addCell(cell);
@@ -530,63 +545,20 @@ public class PDFGen
 			{
 				Round round = itR.next() ;			
 				Iterator<Match> itM = round.getMatches().iterator() ;
-				//System.out.println("Round: "+ round.getId());
 				while(itM.hasNext())
 				{
 					Match m = itM.next() ;
 					if(m.getEleve1().getId()==e.getId()) 
 					{
-						// on ajoute la table si ce n'est pas fait
-						if(!tableOk)
-						{
-							String tabl = Integer.toString(m.getTable()) ;
-							cell = new PdfPCell(new Phrase(tabl)) ;
-							cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-							tab.addCell(cell);
-						//	System.out.println("Table: "+tabl);
-							String id = Integer.toString(e.getId());
-							cell = new PdfPCell(new Phrase(id));
-							cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-							tab.addCell(cell);
-						//	System.out.println("Eleve: "+id);
-							tableOk = true ;
-						}
-						
-						// on ajoute l'adversaire
-						String adv = Integer.toString(m.getEleve2().getId());
-						cell = new PdfPCell(new Phrase(adv)) ;
-						BaseColor coul = tournoi.getClasseFromId(m.getEleve2().getClasse()).getCouleur() ;
-						cell.setBackgroundColor(coul);
-						cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-						tab.addCell(cell);
+						Eleve adv = m.getEleve2() ;
+						tableOk = addAdversaire(tournoi,m,e,adv,tab,tableOk) ;
 					
 					}
 					else if (m.getEleve2().getId()==e.getId())
 					{
-						// on ajoute la table si ce n'est pas fait
-						if(!tableOk)
-						{
-							String tabl = Integer.toString(m.getTable()) ;
-							cell = new PdfPCell(new Phrase(tabl)) ;
-							cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-							tab.addCell(cell);
-							//System.out.println("Table: "+tabl) ;
-							String id = Integer.toString(e.getId());
-							cell = new PdfPCell(new Phrase(id));
-							cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-							tab.addCell(cell);
-						//	System.out.println("Eleve: "+id) ;
-							tableOk = true ;
-						}
-						// on ajoute l'adversaire
-						String adv = Integer.toString(m.getEleve1().getId());
-						cell = new PdfPCell(new Phrase(adv)) ;
-						BaseColor coul = tournoi.getClasseFromId(m.getEleve1().getClasse()).getCouleur() ;
-						cell.setBackgroundColor(coul);
-						cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-						tab.addCell(cell);
-					}
-				
+						Eleve adv = m.getEleve1() ;
+						tableOk = addAdversaire(tournoi,m,e,adv,tab,tableOk) ;
+					}	
 				}
 			}		
 		}
@@ -600,6 +572,42 @@ public class PDFGen
 		}
 		
 	}
+	
+	public static boolean addAdversaire(Tournoi tournoi, Match m, Eleve e, Eleve adv, PdfPTable tab, boolean tableOk)
+	{
+		// on ajoute la table et l'eleve statique si ce n'est pas fait
+		if(!tableOk)
+		{
+			// table
+			String tabl = Integer.toString(m.getTable()) ;
+			PdfPCell cell = new PdfPCell(new Phrase(tabl)) ;
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			tab.addCell(cell);
+			// eleve statique
+			String id = Integer.toString(e.getId());
+			BaseColor coul = tournoi.getClasseFromId(e.getClasse()).getCouleur() ;
+			cell = new PdfPCell(new Phrase(id));
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			cell.setBackgroundColor(coul);
+			tab.addCell(cell);
+			tableOk = true ;
+		}
+		
+		// on ajoute l'adversaire
+		String advers = Integer.toString(adv.getId());
+		PdfPCell cell = new PdfPCell(new Phrase(advers)) ;
+		BaseColor coul = tournoi.getClasseFromId(adv.getClasse()).getCouleur() ;
+		cell.setBackgroundColor(coul);
+		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		tab.addCell(cell);
+		
+		return tableOk ;
+	}
+	
+	
 	
 	// --------- Doc 5 : Fiches eleves -------------------------
 	// creation du document pdf du tableau récap des matches pour chaque ronde
@@ -660,6 +668,8 @@ public class PDFGen
 			
 			// recup l'eleve
 			Eleve eleve = it.next();
+			// est il statique ? si oui il commence blanc
+			boolean blanc = tournoi.dansGroupCoul1(eleve) ;
 			
 			// ------------ Tableau 1 : Info Eleve
 			 PdfPTable tabEleve = new PdfPTable(1);
@@ -667,24 +677,30 @@ public class PDFGen
 			 PdfPCell cell = new PdfPCell(new Phrase(nb)) ;
 			 cell.setBackgroundColor(classe.getCouleur());
 			 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			 tabEleve.addCell(cell);
 			 cell = new PdfPCell(new Phrase(eleve.getNom())) ;
 			 cell.setHorizontalAlignment(Element.ALIGN_MIDDLE);
+			 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			 tabEleve.addCell(cell);
 			 
 			 // ---------- Tableau 2 : Legende
 			 PdfPTable tabLegende = new PdfPTable(1);
 			 cell = new PdfPCell(new Phrase("Round")) ;
 			 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			 tabLegende.addCell(cell);
 			 cell = new PdfPCell(new Phrase("Table")) ;
 			 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			 tabLegende.addCell(cell);
 			 cell = new PdfPCell(new Phrase("Couleur")) ;
 			 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			 tabLegende.addCell(cell);
 			 cell = new PdfPCell(new Phrase("Resultat")) ;
 			 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			 tabLegende.addCell(cell);
 			 
 			 // --------- Tableau 3 : Rounds
@@ -694,18 +710,21 @@ public class PDFGen
 			 while(itR.hasNext())
 			 {
 				 Round round = itR.next() ;
-				 addTabRound(round,eleve,tabRound) ;
+				 addTabRound(round,eleve,tabRound,blanc) ;
+				 blanc = !blanc ;
 			 }
 			 
 			 // --------- Tableau 4 : Total
 			 PdfPTable tabTotal = new PdfPTable(1) ;
 			 // ajoute une case vide
 			 cell = new PdfPCell(new Phrase(" ")) ;
-			 cell.setRowspan(2);
 			 tabTotal.addCell(cell);
+			 tabTotal.addCell(cell);
+
 			 // ajoute case total
 			 cell = new PdfPCell(new Phrase("Total"));
 			 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			 tabTotal.addCell(cell);
 			 // ajoute case vide
 			 cell = new PdfPCell(new Phrase(" ")) ;
@@ -742,7 +761,7 @@ public class PDFGen
 	}
 	
 	// ajoute un tableau d'un round avec la table et la couleur
-	public static void addTabRound(Round round, Eleve eleve, PdfPTable tab)
+	public static void addTabRound(Round round, Eleve eleve, PdfPTable tab, boolean blanc)
 	{
 		// -- creation du tableau
 		PdfPTable tabRound = new PdfPTable(1) ;
@@ -751,6 +770,7 @@ public class PDFGen
 		String nb = Integer.toString(round.getId()) ;
 		PdfPCell cell = new PdfPCell(new Phrase(nb)) ;
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		tabRound.addCell(cell);
 		
 		// -- ajout numero table
@@ -761,21 +781,27 @@ public class PDFGen
 			// recup match
 			Match match = it.next() ;
 			// regarde si c'est le bon
-			if(match.getEleve1().equals(eleve) || match.getEleve1().equals(eleve))
+			if(match.getEleve1().equals(eleve) || match.getEleve2().equals(eleve))
 			{
 				// ajoute la table
 				nb = Integer.toString(match.getTable()) ;
 				cell = new PdfPCell(new Phrase(nb)) ;
 				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 				tabRound.addCell(cell);
 			}
 		}
 		
 		// -- ajout case couleur
-		//TODO
-		tabRound.addCell(new Phrase("a"));
+		// on regarde si il est blanc
+		cell = new PdfPCell(new Phrase(" ")) ;
+		if(!blanc)
+		{
+			cell.setBackgroundColor(BaseColor.BLACK);
+		}
+		tabRound.addCell(cell);
 		// -- ajout case vide pour résultat
-		tabRound.addCell(new Phrase("a"));		
+		tabRound.addCell(new Phrase(" "));		
 		
 		// ajout au tableau
 		cell = new PdfPCell(tabRound) ;
