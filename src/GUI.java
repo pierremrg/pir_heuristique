@@ -355,9 +355,15 @@ public class GUI {
 				readFromJSON(null);
 				initTournament();
 
+				long startTime = System.nanoTime();
+				
 				tournament1.createMatches();
-				tournament2.createMatches();
-				tournament3.createMatches();
+				
+				long timeElapsed = System.nanoTime() - startTime;
+				writeConsole("Matches créés pour " + tournament1.getPlayers().size() + " joueurs et " + NB_ROUNDS + " rounds en " + (float)timeElapsed/1000000.0 + " ms");
+				
+//				tournament2.createMatches();
+//				tournament3.createMatches();
 			
 			/// PDF
 				// ------------- creation du tournoi
@@ -366,8 +372,8 @@ public class GUI {
 				//---------------  ajoute les rounds
 				tournoi.addNbRound(tournament1);
 				tournoi.addAllRoundNiv(tournament1,1) ;
-				tournoi.addAllRoundNiv(tournament2,2) ;
-				tournoi.addAllRoundNiv(tournament3,3) ;
+//				tournoi.addAllRoundNiv(tournament2,2) ;
+//				tournoi.addAllRoundNiv(tournament3,3) ;
 				// -------------- ajoute les tables
 				tournoi.addTables() ;
 
@@ -394,8 +400,8 @@ public class GUI {
 				readFromJSON(null);
 				initTournament();
 				tournament1.divideBiggestClass();
-				tournament2.divideBiggestClass();
-				tournament3.divideBiggestClass();
+//				tournament2.divideBiggestClass();
+//				tournament3.divideBiggestClass();
 			}
 		});
 		mnTournoi.add(mntmTest);
@@ -439,7 +445,7 @@ public class GUI {
 		players2.clear();
 		players3.clear();
 		
-		// TODO Gérer enabled/disabled
+		// TODO Gérer enabled/disabled sur le GUI
 		
 		
 		// Création du JSONPArser

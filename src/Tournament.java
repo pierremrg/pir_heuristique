@@ -266,7 +266,7 @@ public class Tournament {
 		
 //		System.out.println("Génération des matches (" + playersNumber + " joueurs / " + classesNumber + " classes / " + roundsNumber + " rounds)...");
 		
-		long startTime = System.nanoTime();
+		
 		
 		int playerOKCount = 0;
 		
@@ -278,10 +278,13 @@ public class Tournament {
 //			System.out.println(tries);
 			if(tries > 5000) {
 				// TODO Gérer message d'erreur
-				System.out.println("PAS DE MATCH POSSIBLE !");
+//				System.out.println("PAS DE MATCH POSSIBLE !");
+				gui.writeConsole("Pas de solution trouvée. Division de la plus grande classe.");
 				
 				// TODO Division des classes
 				gui.displayMatchsTable();
+				
+				divideBiggestClass();
 				
 				tries = 0;
 				
@@ -374,8 +377,6 @@ public class Tournament {
 //		System.out.println(diffAverage);
 		*/
 
-		long timeElapsed = System.nanoTime() - startTime;
-		gui.writeConsole("Matches créés pour " + playersNumber + " joueurs et " + roundsNumber + " rounds en " + (float)timeElapsed/1000000.0 + " ms");
 		//System.out.println((float) timeElapsed/1000000.0 + " ms pour " + playersNumber + " joueurs");
 		//System.out.println(timeElapsed);
 	}
@@ -536,15 +537,41 @@ public class Tournament {
 		
 		int newClasseId = classeSize.size();
 		
-		for(Player p : players) {
-			if(p.getClasseId() == maxClasseId && p.getId() % 2 == 0)
-				p.setClasseId(newClasseId);
+		ArrayList<Player> newPlayers = new ArrayList<Player>();
+		
+		ArrayList<Player> tmpPlayers = new ArrayList<Player>();
+		int i = 0;
+		
+		for(Player p : players) {	
+			
+			if(p.getClasseId() == maxClasseId) {
+				
+				if(i % 2 == 0) {
+					p.setClasseId(newClasseId);
+					tmpPlayers.add(p);
+				}
+				else {
+					newPlayers.add(p);
+				}
+				
+				i++;
+			}
+			else {
+				newPlayers.add(p);
+			}
 		}
 		
+		for(Player p : tmpPlayers)
+			newPlayers.add(p);
+		
+		this.players = newPlayers;
 		
 		Tournament newTournament = new Tournament(players, roundsNumber, gui);
+		newTournament.createMatches();
 		
-		System.out.println(newTournament.getMatchesTable());
+		this.matches = newTournament.getMatches();
+		
+//		System.out.println(newTournament.getMatchesTable());
 		
 	}
 	
