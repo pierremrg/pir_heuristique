@@ -99,7 +99,7 @@ public class Tournament {
 			classPlayersId[i] = new ArrayList<Integer>();
 		}
 		for (Player p : players) {
-			System.out.println("test: " + p.getClasseId());
+//			System.out.println("test: " + p.getClasseId());
 			classPlayersId[p.getClasseId()].add(p.getId());
 		}
 		for(int i=0; i < classesNumber; i++) {
