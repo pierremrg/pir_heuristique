@@ -6,12 +6,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.SynchronousQueue;
-import java.util.stream.Collectors;
 
 public class Tournament {
 	
 	private GUI gui;
+	private int level; // Niveau du tournoi (pour le message d'erreur si nombre impair)
 	
 	// Pour deux élèves de la même classe
 	private static final int NO_POSSIBLE_MATCH = -1;
@@ -47,13 +46,37 @@ public class Tournament {
 	private ArrayList<Integer>[] classPlayersId;
 	private ArrayList<Integer>[] possibleOpponentsId;
 	
+	// Exception pour les groupes impairs
+	@SuppressWarnings("serial")
+	public static class OddClassException extends Exception {
+		int level;
+
+		public OddClassException(int level) {
+			this.level = level;
+		}
+		
+		public int getLevel() {
+			return this.level;
+		}
+	};
+	
 	@SuppressWarnings("unchecked")
- 	public Tournament(ArrayList<Player> ps, int roundsNumber, GUI gui) {
+ 	public Tournament(ArrayList<Player> ps, int roundsNumber, GUI gui, int level) throws OddClassException {
 		this.gui = gui;
+		this.level = level;
 		
 		this.players = ps;
 		
 		playersNumber = players.size();
+		
+		// Nombre impair de joueurs, erreur
+		if(players.size() % 2 != 0) {
+			throw new OddClassException(level);
+//			System.out.println("Erreur : nombre impair de joueur dans le niveau " + level);
+//			return;
+		}
+		
+		
 		
 		doneMatches = new ArrayList[playersNumber];
 		
@@ -259,11 +282,8 @@ public class Tournament {
 		return (playerId1 % 2 != playerId2 % 2);
 	}
 	
-	public void createMatches() {
-		
-//		System.out.println(players.size());
-		// TODO Gérer si nombre impair !
-		
+	public void createMatches() throws OddClassException {
+
 //		System.out.println("Génération des matches (" + playersNumber + " joueurs / " + classesNumber + " classes / " + roundsNumber + " rounds)...");
 		
 		
@@ -281,14 +301,13 @@ public class Tournament {
 //				System.out.println("PAS DE MATCH POSSIBLE !");
 				gui.writeConsole("Pas de solution trouvée. Division de la plus grande classe.");
 				
-				// TODO Division des classes
 				gui.displayMatchsTable();
 				
 				divideBiggestClass();
 				
 				tries = 0;
 				
-				return; // TODO A supprimer
+				return;
 			}
 			
 			playerOKCount = 0;
@@ -439,7 +458,7 @@ public class Tournament {
 					doneMatches[i].add(round);
 					doneMatches[advId].add(round);
 					roundOK = true;
-					changed = 1;
+					//changed = 1;
 					//roundOKCount++;
 				}
 				
@@ -528,9 +547,9 @@ public class Tournament {
 	
 	/**
 	 * Divise la plus grande classe en deux (la classe d'origine + rajoute une nouvelle classe)
+	 * @throws OddClassException 
 	 */
-	// TODO private
-	public void divideBiggestClass() {
+	private void divideBiggestClass() throws OddClassException {
 		
 		ArrayList<Integer> tempClasseSize = new ArrayList<Integer>(classeSize);
 		int maxClasseId = tempClasseSize.indexOf(Collections.max(tempClasseSize));
@@ -566,7 +585,7 @@ public class Tournament {
 		
 		this.players = newPlayers;
 		
-		Tournament newTournament = new Tournament(players, roundsNumber, gui);
+		Tournament newTournament = new Tournament(players, roundsNumber, gui, level);
 		newTournament.createMatches();
 		
 		this.matches = newTournament.getMatches();
@@ -576,9 +595,31 @@ public class Tournament {
 	}
 	
 	
+	/**
+	 * Retourne le global_score de la solution actuelle
+	 * @return global_score(s) = average_score(s) - 2 * weight_lowest_score(s)
+	 */
+	public float getSolutionScore() {
+		computePlayersScores();
+		
+		double averageScore = getAverageScore();
+		
+		// Calcul du weight_lowest_score
+		double lowestScore = getMinScore();
+		double weightLowestScore = 0;
+		
+		for(int i=0; i<playersNumber; i++) {
+			if(scores[i] <= lowestScore)
+				weightLowestScore++;
+		}
+		weightLowestScore /= playersNumber;
+		
+		// Average score entre 1 et 6 (souvent 4-5)
+		// weightLowestScore entre 0 et 1 (souvent 0.5)
+		return (float) (averageScore - 2 * weightLowestScore);
+	}
 	
-	
-	public void computeScores() {
+	private void computePlayersScores() {
 		
 		for(int i=0; i<playersNumber; i++) {
 			
@@ -598,17 +639,20 @@ public class Tournament {
 		
 	}
 	
-	public double getAverageScore() {
+	private double getAverageScore() {
 		return Arrays.stream(scores).average().getAsDouble();
 	}
 	
-	public int getMinScore() {
+	private int getMinScore() {
 		return Arrays.stream(scores).min().getAsInt();
 	}
 	
-	public int getMaxScore() {
+	private int getMaxScore() {
 		return Arrays.stream(scores).max().getAsInt();
 	}
+	
+	
+	
 	
 	public String getMatchesTable() {
 		
@@ -717,6 +761,10 @@ public class Tournament {
 	
 	public int[][] getMatches(){
 		return matches;
+	}
+	
+	public void setMatches(int[][] matches) {
+		this.matches = matches;
 	}
 	
 	public int getNbRounds()

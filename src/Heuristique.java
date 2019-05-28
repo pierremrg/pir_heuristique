@@ -22,7 +22,7 @@ public class Heuristique {
 	
 	private static ArrayList<Player> players = new ArrayList<>();
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Tournament.OddClassException {
 		
 		readFromJSON();
 		
@@ -34,7 +34,7 @@ public class Heuristique {
 			float FORGOTTEN_PERCENT = (float) solNumber/100;
 			
 //			Tournament tournament = new Tournament(players, NB_ROUNDS, (float) 0.1, FORGET_TURNS_NUMBER, null);
-			Tournament tournament = new Tournament(players, NB_ROUNDS, null);
+			Tournament tournament = new Tournament(players, NB_ROUNDS, null, 0);
 			
 			// Moyenne de temps pour NB_SOLUTIONS solutions
 			long sum_duration = 0;
@@ -57,15 +57,17 @@ public class Heuristique {
 				sum_duration += timeElapsed;
 				
 				// Calcul des scores
-				tournament.computeScores();
+//				tournament.computeScores();
 				
-				double score = tournament.getAverageScore();
-				int min_score = tournament.getMinScore();
-				int max_score = tournament.getMaxScore();
+//				double score = tournament.getAverageScore();
+//				int min_score = tournament.getMinScore();
+//				int max_score = tournament.getMaxScore();
 				
-				sum_score += score;
-				sum_min_score += min_score;
-				sum_max_score += max_score;
+//				sum_score += score;
+//				sum_min_score += min_score;
+//				sum_max_score += max_score;
+				
+				int score=0, min_score=0, max_score=0;
 				
 				boolean correct = tournament.checkSolution();
 				

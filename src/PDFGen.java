@@ -1,6 +1,10 @@
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import javax.swing.JFileChooser;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
@@ -8,32 +12,42 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.PdfNumber;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPage;
-import com.itextpdf.text.pdf.PdfPageEventHelper;
-import com.itextpdf.text.pdf.PdfPages;
 import com.itextpdf.text.pdf.PdfWriter;
-
-
-import org.json.simple.parser.JSONParser;
-import org.json.simple.JSONArray ;
-import org.json.simple.JSONObject ;
 
 public class PDFGen 
 {
-	private static final String OUTPUT_DIR = "./pdf/";
+	
+//	private static final String OUTPUT_DIR = "./pdf/";
+	private static String outputDir;
 	
 	// -------------------------- METHODE PRINCIPALE -------------------------------
 	public static void createPDF (Tournoi tournoi) throws DocumentException, IOException 
 	{
-		File directory = new File(OUTPUT_DIR);
+		
+	    // Sélection du dossier où enregistrer les fiches
+	    JFileChooser chooser = new JFileChooser();
+	    chooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+	    chooser.setDialogTitle("Choisissez un emplacement pour enregistrer les fiches...");
+	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		
+		int result = chooser.showOpenDialog(null);
+		
+		if(result == JFileChooser.APPROVE_OPTION)
+			outputDir = chooser.getSelectedFile().getAbsolutePath() + "/";
+		
+		else
+			return;
+			
+		
+		File directory = new File(outputDir);
 	    if(!directory.exists())
 	        directory.mkdir();
 		
 		// -------- partie json		
-		String path = OUTPUT_DIR + "donnees_eleves.json" ;
+//		String path = outputDir + "donnees_eleves.json" ;
 		
 		// -------- creation des documents pdf
 		createDocListeClasses(tournoi) ;
@@ -124,7 +138,7 @@ public class PDFGen
 		// --------- declarations
 		// Creation du document
 		Document doc = new Document();
-		String chemin = OUTPUT_DIR + "ListeClasses.pdf" ;
+		String chemin = outputDir + "ListeClasses.pdf" ;
 		FileOutputStream output = new FileOutputStream(chemin) ;
 		
 		// --------- ouvre le doc
@@ -230,7 +244,7 @@ public class PDFGen
 		// --------- déclarations
 		// Creation du document
 		Document doc = new Document();
-		String chemin = OUTPUT_DIR + "ListeNiveaux.pdf" ;
+		String chemin = outputDir + "ListeNiveaux.pdf" ;
 		FileOutputStream output = new FileOutputStream(chemin) ;
 					
 		// -------- ouvre le doc
@@ -317,11 +331,11 @@ public class PDFGen
 		// --------- déclarations
 		// Creation du document
 		Document doc = new Document();
-		String chemin = OUTPUT_DIR + "FicheProf.pdf" ;
-		FileOutputStream output = new FileOutputStream(chemin) ;
+		String chemin = outputDir + "FicheProf.pdf" ;
+//		FileOutputStream output = new FileOutputStream(chemin) ;
 					
 		// -------- ouvre le doc
-		PdfWriter wr = PdfWriter.getInstance(doc, output) ;
+//		PdfWriter wr = PdfWriter.getInstance(doc, output) ;
 		doc.open();
 				
 		// --------- ajout de contenu
@@ -458,7 +472,7 @@ public class PDFGen
 		// --------- déclarations
 		// Creation du document
 		Document doc = new Document();
-		String chemin = OUTPUT_DIR + "ListeMatches.pdf" ;
+		String chemin = outputDir + "ListeMatches.pdf" ;
 		FileOutputStream output = new FileOutputStream(chemin) ;
 						
 		// -------- ouvre le doc
@@ -608,7 +622,7 @@ public class PDFGen
 		// --------- déclarations
 		// Creation du document
 		Document doc = new Document();
-		String chemin = OUTPUT_DIR + "FichesEleves.pdf" ;
+		String chemin = outputDir + "FichesEleves.pdf" ;
 		FileOutputStream output = new FileOutputStream(chemin) ;
 						
 		// -------- ouvre le doc

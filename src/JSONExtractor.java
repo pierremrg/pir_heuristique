@@ -1,6 +1,5 @@
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -11,13 +10,13 @@ public class JSONExtractor
 	
 	// -------------------------- EXTRACTION DU JSON ----------------------
 	// -------------------------- recupere le json ------------------------
-	public static Tournoi ExtractJSON(String path)
+	public static Tournoi ExtractJSON(File file)
 	{
 		JSONParser parser = new JSONParser();
 		JSONObject json = new JSONObject();
 		try
 		{
-			Object obj = parser.parse(new FileReader(path)) ;
+			Object obj = parser.parse(new FileReader(file)) ;
 			json = (JSONObject) obj ;
 		}
 		catch (Exception e)
