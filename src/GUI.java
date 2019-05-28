@@ -729,6 +729,7 @@ public class GUI {
 	public File openPlayersFile() {
 		final JFileChooser fc = new JFileChooser();
 		fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		fc.setDialogTitle("Sélectionnez le fichier de données généré par l'application web...");
 		
 		int result = fc.showOpenDialog(frmOrganisationDeTournois);
 		
