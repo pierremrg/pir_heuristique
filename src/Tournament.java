@@ -64,8 +64,8 @@ public class Tournament {
 		int idCurrentClass = players.get(0).getClasseId();
 		int nbClasses = 1;
 		for (Player p : players) {
-			if (p.getClasseId() != idCurrentClass) {
-				nbClasses++;
+			if (p.getClasseId() > idCurrentClass) {
+				nbClasses=p.getClasseId()+1;
 				idCurrentClass = p.getClasseId();
 			}
 		}
@@ -76,6 +76,7 @@ public class Tournament {
 			classPlayersId[i] = new ArrayList<Integer>();
 		}
 		for (Player p : players) {
+			System.out.println("test: " + p.getClasseId());
 			classPlayersId[p.getClasseId()].add(p.getId());
 		}
 		for(int i=0; i < classesNumber; i++) {
