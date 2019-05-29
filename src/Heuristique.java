@@ -16,13 +16,13 @@ public class Heuristique {
 	private static final int NB_ROUNDS = 6;
 	
 //	private static final float FORGOTTEN_PERCENT = (float) 10/100;
-	private static final int FORGET_TURNS_NUMBER = 0;
+//	private static final int FORGET_TURNS_NUMBER = 0;
 	
 	private static final boolean SAVE_SOLUTION = false;
 	
 	private static ArrayList<Player> players = new ArrayList<>();
 	
-	public static void main(String[] args) throws Tournament.OddClassException {
+	public static void main(String[] args) throws Tournament.OddClassException, Tournament.NoSolutionFoundException {
 		
 		readFromJSON();
 		
@@ -34,7 +34,7 @@ public class Heuristique {
 			float FORGOTTEN_PERCENT = (float) solNumber/100;
 			
 //			Tournament tournament = new Tournament(players, NB_ROUNDS, (float) 0.1, FORGET_TURNS_NUMBER, null);
-			Tournament tournament = new Tournament(players, NB_ROUNDS, null, 0);
+			Tournament tournament = new Tournament(players, NB_ROUNDS, null, 0, true);
 			
 			// Moyenne de temps pour NB_SOLUTIONS solutions
 			long sum_duration = 0;

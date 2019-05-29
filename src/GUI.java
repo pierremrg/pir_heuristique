@@ -50,8 +50,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import java.awt.Dialog.ModalExclusionType;
-import java.awt.Window.Type;
 
 
 public class GUI {
@@ -71,11 +69,12 @@ public class GUI {
 	JButton btnCreerMatchs;
 	JSpinner spinner;
 	JLabel lblNombreDeSolutions;
-	JCheckBox chckbxNewCheckBox;
-	JLabel lblMatchsDeNiveau, lblMatchsDeNiveau_1, lblMatchsDeNiveau_2;
+	JCheckBox chkDivisionClasses;
+	JLabel lblMatchsDeNiveau1, lblMatchsDeNiveau2, lblMatchsDeNiveau3;
 	
 	JMenuItem mntmCrerLesFiches;
 	JButton btnCreerFiches;
+	public JLabel lblResultProg;
 	
 	
 	// Tournois
@@ -101,10 +100,21 @@ public class GUI {
 //	final int NB_PLAYERS = 200;
 	static final int NB_ROUNDS = 6;
 	
+	private float progress = 0;
+	
 //	private static final float FORGOTTEN_PERCENT = (float) 30/100;
 //	private static final int FORGET_TURNS_NUMBER = 0;
 	
 	final boolean saveSolution = false;
+	
+	
+	public int getProgress() {
+		return Math.min(100, Math.round(progress));
+	}
+	
+	public void setLblProgress() {
+		lblResultProg.setText("R\u00E9sultats de la programmation : " + getProgress());
+	}
 	
 	
 	/**
@@ -193,9 +203,9 @@ public class GUI {
 //		readFromJSON();
 		
 //		tournament = new Tournament(players1, NB_ROUNDS, FORGOTTEN_PERCENT, FORGET_TURNS_NUMBER, this);
-		tournament1 = new Tournament(players1, NB_ROUNDS, this, 1);
-		tournament2 = new Tournament(players2, NB_ROUNDS, this, 2);
-		tournament3 = new Tournament(players3, NB_ROUNDS, this, 3);
+		tournament1 = new Tournament(players1, NB_ROUNDS, this, 1, chkDivisionClasses.isSelected());
+		tournament2 = new Tournament(players2, NB_ROUNDS, this, 2, chkDivisionClasses.isSelected());
+		tournament3 = new Tournament(players3, NB_ROUNDS, this, 3, chkDivisionClasses.isSelected());
 
 		//tournament.createMatches();
 		
@@ -362,20 +372,20 @@ public class GUI {
 		gbc_panel_9.gridy = 2;
 		panel_7.add(panel_9, gbc_panel_9);
 		
-		chckbxNewCheckBox = new JCheckBox("Autoriser la division des classes");
-		chckbxNewCheckBox.setEnabled(false);
-		chckbxNewCheckBox.setBackground(Color.WHITE);
-		chckbxNewCheckBox.setSelected(true);
-		panel_9.add(chckbxNewCheckBox);
+		chkDivisionClasses = new JCheckBox("Autoriser la subdivision des classes");
+		chkDivisionClasses.setEnabled(false);
+		chkDivisionClasses.setBackground(Color.WHITE);
+		chkDivisionClasses.setSelected(true);
+		panel_9.add(chkDivisionClasses);
 		
-		JLabel lblRsultatsDeLa = new JLabel("R\u00E9sultats de la programmation");
-		lblRsultatsDeLa.setFont(new Font("Tahoma", Font.BOLD, 14));
-		GridBagConstraints gbc_lblRsultatsDeLa = new GridBagConstraints();
-		gbc_lblRsultatsDeLa.insets = new Insets(20, 0, 5, 0);
-		gbc_lblRsultatsDeLa.gridwidth = 3;
-		gbc_lblRsultatsDeLa.gridx = 0;
-		gbc_lblRsultatsDeLa.gridy = 3;
-		panel_7.add(lblRsultatsDeLa, gbc_lblRsultatsDeLa);
+		lblResultProg = new JLabel("R\u00E9sultats de la programmation");
+		lblResultProg.setFont(new Font("Tahoma", Font.BOLD, 14));
+		GridBagConstraints gbc_lblResultProg = new GridBagConstraints();
+		gbc_lblResultProg.insets = new Insets(20, 0, 5, 0);
+		gbc_lblResultProg.gridwidth = 3;
+		gbc_lblResultProg.gridx = 0;
+		gbc_lblResultProg.gridy = 3;
+		panel_7.add(lblResultProg, gbc_lblResultProg);
 		
 		JPanel panel_10 = new JPanel();
 		panel_10.setBackground(Color.WHITE);
@@ -394,29 +404,29 @@ public class GUI {
 		gbl_panel_10.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel_10.setLayout(gbl_panel_10);
 		
-		lblMatchsDeNiveau = new JLabel("Matchs de niveau 1 : pas encore tir\u00E9s");
-		lblMatchsDeNiveau.setEnabled(false);
-		GridBagConstraints gbc_lblMatchsDeNiveau = new GridBagConstraints();
-		gbc_lblMatchsDeNiveau.insets = new Insets(5, 0, 5, 5);
-		gbc_lblMatchsDeNiveau.gridx = 1;
-		gbc_lblMatchsDeNiveau.gridy = 0;
-		panel_10.add(lblMatchsDeNiveau, gbc_lblMatchsDeNiveau);
+		lblMatchsDeNiveau1 = new JLabel("Matchs de niveau 1 : pas encore tir\u00E9s");
+		lblMatchsDeNiveau1.setEnabled(false);
+		GridBagConstraints gbc_lblMatchsDeNiveau1 = new GridBagConstraints();
+		gbc_lblMatchsDeNiveau1.insets = new Insets(5, 0, 5, 5);
+		gbc_lblMatchsDeNiveau1.gridx = 1;
+		gbc_lblMatchsDeNiveau1.gridy = 0;
+		panel_10.add(lblMatchsDeNiveau1, gbc_lblMatchsDeNiveau1);
 		
-		lblMatchsDeNiveau_1 = new JLabel("Matchs de niveau 2 : pas encore tir\u00E9s");
-		lblMatchsDeNiveau_1.setEnabled(false);
-		GridBagConstraints gbc_lblMatchsDeNiveau_1 = new GridBagConstraints();
-		gbc_lblMatchsDeNiveau_1.insets = new Insets(0, 0, 5, 5);
-		gbc_lblMatchsDeNiveau_1.gridx = 1;
-		gbc_lblMatchsDeNiveau_1.gridy = 1;
-		panel_10.add(lblMatchsDeNiveau_1, gbc_lblMatchsDeNiveau_1);
+		lblMatchsDeNiveau2 = new JLabel("Matchs de niveau 2 : pas encore tir\u00E9s");
+		lblMatchsDeNiveau2.setEnabled(false);
+		GridBagConstraints gbc_lblMatchsDeNiveau2 = new GridBagConstraints();
+		gbc_lblMatchsDeNiveau2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblMatchsDeNiveau2.gridx = 1;
+		gbc_lblMatchsDeNiveau2.gridy = 1;
+		panel_10.add(lblMatchsDeNiveau2, gbc_lblMatchsDeNiveau2);
 		
-		lblMatchsDeNiveau_2 = new JLabel("Matchs de niveau 3 : pas encore tir\u00E9s");
-		lblMatchsDeNiveau_2.setEnabled(false);
-		GridBagConstraints gbc_lblMatchsDeNiveau_2 = new GridBagConstraints();
-		gbc_lblMatchsDeNiveau_2.insets = new Insets(0, 0, 0, 5);
-		gbc_lblMatchsDeNiveau_2.gridx = 1;
-		gbc_lblMatchsDeNiveau_2.gridy = 2;
-		panel_10.add(lblMatchsDeNiveau_2, gbc_lblMatchsDeNiveau_2);
+		lblMatchsDeNiveau3 = new JLabel("Matchs de niveau 3 : pas encore tir\u00E9s");
+		lblMatchsDeNiveau3.setEnabled(false);
+		GridBagConstraints gbc_lblMatchsDeNiveau3 = new GridBagConstraints();
+		gbc_lblMatchsDeNiveau3.insets = new Insets(0, 0, 0, 5);
+		gbc_lblMatchsDeNiveau3.gridx = 1;
+		gbc_lblMatchsDeNiveau3.gridy = 2;
+		panel_10.add(lblMatchsDeNiveau3, gbc_lblMatchsDeNiveau3);
 		
 		JPanel panel_1 = new JPanel();
 		tabbedPane.addTab("Tous les joueurs", null, panel_1, "Liste de tous les joueurs du tournoi");
@@ -600,55 +610,70 @@ public class GUI {
 		btnCreerMatchs.setEnabled(true);
 		lblNombreDeSolutions.setEnabled(true);
 		spinner.setEnabled(true);
-		chckbxNewCheckBox.setEnabled(true);
-		lblMatchsDeNiveau.setEnabled(true);
-		lblMatchsDeNiveau_1.setEnabled(true);
-		lblMatchsDeNiveau_2.setEnabled(true);
+		chkDivisionClasses.setEnabled(true);
+		lblMatchsDeNiveau1.setEnabled(true);
+		lblMatchsDeNiveau2.setEnabled(true);
+		lblMatchsDeNiveau3.setEnabled(true);
 		
-		writeConsole("Joueurs chargés");
+		writeConsole("Les joueurs ont correctement été chargés.");
 	}
 	
 	void actCreateMatches() {
 		
 		try {
+			progress = 0;
 			initTournaments();
+			
+//			WaitThread waitThread = new WaitThread(this);
+//			waitThread.start();
 			
 			long startTime = System.nanoTime();
 			
 			// Calcul des meilleures solutions
-			tournament1.createMatches();
+			boolean foundMatches1 = tournament1.createMatches();
 			matches1 = tournament1.getMatches();
 			float bestScore1 = tournament1.getSolutionScore();
 			
-			tournament2.createMatches();
+			boolean foundMatches2 = tournament2.createMatches();
 			matches2 = tournament2.getMatches();
 			float bestScore2 = tournament2.getSolutionScore();
 			
-			tournament3.createMatches();
+			boolean foundMatches3 = tournament3.createMatches();
 			matches3 = tournament3.getMatches();
 			float bestScore3 = tournament3.getSolutionScore();
 			
 			for(int i=1; i < (Integer) spinner.getValue(); i++) {
-				tournament1.createMatches();
-				tournament2.createMatches();
-				tournament3.createMatches();
 				
-				float score1 = tournament1.getSolutionScore();
-				float score2 = tournament2.getSolutionScore();
-				float score3 = tournament3.getSolutionScore();
-	//			System.out.println(score1);
+				progress += (float) i/(Integer) spinner.getValue();
 				
-				if(score1 > bestScore1) {
-					matches1 = tournament1.getMatches();
-					bestScore1 = score1;
+				if(foundMatches1) {
+					tournament1.createMatches();
+					float score1 = tournament1.getSolutionScore();
+					
+					if(score1 > bestScore1) {
+						matches1 = tournament1.getMatches();
+						bestScore1 = score1;
+					}
 				}
-				if(score2 > bestScore2) {
-					matches2 = tournament2.getMatches();
-					bestScore2 = score2;
+				
+				if(foundMatches2) {
+					tournament2.createMatches();
+					float score2 = tournament2.getSolutionScore();
+					
+					if(score2 > bestScore2) {
+						matches2 = tournament2.getMatches();
+						bestScore2 = score2;
+					}
 				}
-				if(score3 > bestScore3) {
-					matches3 = tournament3.getMatches();
-					bestScore3 = score3;
+				
+				if(foundMatches3) {
+					tournament3.createMatches();
+					float score3 = tournament3.getSolutionScore();
+					
+					if(score3 > bestScore3) {
+						matches3 = tournament3.getMatches();
+						bestScore3 = score3;
+					}
 				}
 				
 			}
@@ -658,6 +683,16 @@ public class GUI {
 			long timeElapsed = System.nanoTime() - startTime;
 			writeConsole("Matches créés pour " + allPlayers.size() + " joueurs et " + NB_ROUNDS + " rounds en " + (float)timeElapsed/1000000.0 + " ms");
 	
+			// Messages 1er onglet
+			lblMatchsDeNiveau1.setText("Matchs de niveau 1 : " + (Math.round(tournament1.getAverageScore()*100)/100.0) +
+					" classes différentes par élève en moyenne (Maximum théorique : " + (Math.min(tournament1.getClassesNumber()-1, NB_ROUNDS)) + ")");
+			
+			lblMatchsDeNiveau2.setText("Matchs de niveau 2 : " + (float) (Math.round(tournament2.getAverageScore()*100)/100.0) +
+					" classes différentes par élève en moyenne (Maximum théorique : " + (Math.min(tournament2.getClassesNumber()-1, NB_ROUNDS)) + ")");
+			
+			lblMatchsDeNiveau3.setText("Matchs de niveau 3 : " + (float) (Math.round(tournament3.getAverageScore()*100)/100.0) +
+					" classes différentes par élève en moyenne (Maximum théorique : " + (Math.min(tournament3.getClassesNumber()-1, NB_ROUNDS)) + ")");
+			
 			// Active tout ce qu'il faut
 			mntmCrerLesFiches.setEnabled(true);
 			btnCreerFiches.setEnabled(true);
@@ -671,8 +706,18 @@ public class GUI {
 					"Nombre de joueurs impairs",
 					JOptionPane.WARNING_MESSAGE);
 		}
+		catch(Tournament.NoSolutionFoundException e) {
+			displayPopUp("Impossible de trouver une solution pour les élèves du niveau " + e.getLevel() + ".\n"
+					+ "Modifiez les groupes ou autorisez la subdivision des classes pour obtenir une solution.",
+					"Impossible de trouver une solution",
+					JOptionPane.WARNING_MESSAGE);
+		}
 		catch(Exception e) {
 			displayPopUp("Une erreur inconnue est survenue.", "Erreur inconnue", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
+		finally {
+			progress = -1;
 		}
 
 	}
@@ -704,9 +749,13 @@ public class GUI {
 		try{
 			PDFGen.createPDF(tournoi);
 
+			writeConsole("Les fiches ont correctement été créées.");
 		}
 		catch(Exception e){
-			e.printStackTrace();
+			displayPopUp("Une erreur inconnue est survenue lors de la création des fiches.\n"
+					+ "Si une fiche est déjà ouverte dans un document, fermez cette dernière avant d'en créer une nouvelle.",
+					"Erreur inconnue", JOptionPane.WARNING_MESSAGE);
+//			e.printStackTrace();
 		}
 	}
 	
@@ -747,10 +796,10 @@ public class GUI {
 	public int readFromJSON(File playersFile) {
 		int nbEleves = 0;
 		
+		allPlayers.clear();
 		players1.clear();
 		players2.clear();
 		players3.clear();
-		
 		
 		// Création du JSONPArser
 		JSONParser parser = new JSONParser();

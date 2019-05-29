@@ -11,6 +11,7 @@ public class Tournament {
 	
 	private GUI gui;
 	private int level; // Niveau du tournoi (pour le message d'erreur si nombre impair)
+	private boolean canDivideClasses; // Possibilité de diviser les classes que si la cache est cochée
 	
 	// Pour deux élèves de la même classe
 	private static final int NO_POSSIBLE_MATCH = -1;
@@ -60,10 +61,25 @@ public class Tournament {
 		}
 	};
 	
+	// Exception si pas de solution trouvée
+	@SuppressWarnings("serial")
+	public static class NoSolutionFoundException extends Exception {
+		int level;
+
+		public NoSolutionFoundException(int level) {
+			this.level = level;
+		}
+		
+		public int getLevel() {
+			return this.level;
+		}
+	};
+	
 	@SuppressWarnings("unchecked")
- 	public Tournament(ArrayList<Player> ps, int roundsNumber, GUI gui, int level) throws OddClassException {
+ 	public Tournament(ArrayList<Player> ps, int roundsNumber, GUI gui, int level, boolean canDivideClasses) throws OddClassException {
 		this.gui = gui;
 		this.level = level;
+		this.canDivideClasses = canDivideClasses;
 		
 		this.players = ps;
 		
@@ -283,10 +299,15 @@ public class Tournament {
 		return (playerId1 % 2 != playerId2 % 2);
 	}
 	
-	public void createMatches() throws OddClassException {
+	/**
+	 * Creer les matchs pour tous les joueurs
+	 * @return True si tous les matchs ont été créés sans division de classe, False sinon (besoin d'une division de classe)
+	 * @throws OddClassException
+	 * @throws NoSolutionFoundException
+	 */
+	public boolean createMatches() throws OddClassException, NoSolutionFoundException {
 
 //		System.out.println("Génération des matches (" + playersNumber + " joueurs / " + classesNumber + " classes / " + roundsNumber + " rounds)...");
-		
 		
 		
 		int playerOKCount = 0;
@@ -298,17 +319,21 @@ public class Tournament {
 			tries++;
 //			System.out.println(tries);
 			if(tries > 5000) {
-				// TODO Gérer message d'erreur
 //				System.out.println("PAS DE MATCH POSSIBLE !");
-				gui.writeConsole("Pas de solution trouvée. Division de la plus grande classe.");
 				
-				gui.displayMatchsTable();
+				gui.displayMatchsTable(); // TODO A supprimer
 				
-				divideBiggestClass();
+				if(canDivideClasses) {
+					gui.writeConsole("Pas de solution trouvée (pour le niveau " + level + "). Division de la classe la plus grande.");
+					divideBiggestClass();
+				}
+				
+				else
+					throw new NoSolutionFoundException(level);
 				
 				tries = 0;
 				
-				return;
+				return false;
 			}
 			
 			playerOKCount = 0;
@@ -329,6 +354,8 @@ public class Tournament {
 			}
 			
 		}
+		
+		return true;
 		
 //		System.out.println("Tries: " + tries);
 		
@@ -484,7 +511,7 @@ public class Tournament {
 		
 		int nbPlayersToForget = (int) (forgotten_percent * playersNumber);
 		
-		// TODO Faire un "shuffle" de tmpScores (sinon ce sont toujours les 1ers moins bons élèves qui sont modifiés !)
+		// TOD Faire un "shuffle" de tmpScores (sinon ce sont toujours les 1ers moins bons élèves qui sont modifiés !)
 		
 		for(int i=0; i<nbPlayersToForget; i++) {
 			int min = Arrays.stream(tmpScores).min().getAsInt();
@@ -549,8 +576,9 @@ public class Tournament {
 	/**
 	 * Divise la plus grande classe en deux (la classe d'origine + rajoute une nouvelle classe)
 	 * @throws OddClassException 
+	 * @throws NoSolutionFoundException 
 	 */
-	private void divideBiggestClass() throws OddClassException {
+	private void divideBiggestClass() throws OddClassException, NoSolutionFoundException {
 		
 		ArrayList<Integer> tempClasseSize = new ArrayList<Integer>(classeSize);
 		int maxClasseId = tempClasseSize.indexOf(Collections.max(tempClasseSize));
@@ -586,7 +614,7 @@ public class Tournament {
 		
 		this.players = newPlayers;
 		
-		Tournament newTournament = new Tournament(players, roundsNumber, gui, level);
+		Tournament newTournament = new Tournament(players, roundsNumber, gui, level, canDivideClasses);
 		newTournament.createMatches();
 		
 		this.matches = newTournament.getMatches();
@@ -640,7 +668,7 @@ public class Tournament {
 		
 	}
 	
-	private double getAverageScore() {
+	public double getAverageScore() {
 		return Arrays.stream(scores).average().getAsDouble();
 	}
 	
@@ -776,5 +804,9 @@ public class Tournament {
 	public void setGUI(GUI gui) {
 		this.gui = gui;
 	}
-
+	
+	public int getClassesNumber() {
+		return this.classesNumber;
+	}
+	
 }

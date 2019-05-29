@@ -341,10 +341,10 @@ public class PDFGen
 		// Creation du document
 		Document doc = new Document();
 		String chemin = outputDir + "FicheProf.pdf" ;
-//		FileOutputStream output = new FileOutputStream(chemin) ;
+		FileOutputStream output = new FileOutputStream(chemin) ;
 					
 		// -------- ouvre le doc
-//		PdfWriter wr = PdfWriter.getInstance(doc, output) ;
+		PdfWriter wr = PdfWriter.getInstance(doc, output) ;
 		doc.open();
 				
 		// --------- ajout de contenu
