@@ -67,7 +67,7 @@ public class PDFGen
 		PdfPTable tab ;	
 		if(idOui)
 		{	
-			tab = new PdfPTable(2) ;
+			tab = new PdfPTable(4) ;
 		}
 		else
 		{
@@ -78,7 +78,7 @@ public class PDFGen
 		PdfPCell cell = new PdfPCell(new Phrase(classe.getProf())) ;
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-		cell.setColspan(2);
+		cell.setColspan(4);
 		cell.setBackgroundColor(classe.getCouleur());
 		tab.addCell(cell);
 			
@@ -95,13 +95,16 @@ public class PDFGen
 				cell = new PdfPCell(new Phrase(nb)) ;
 				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 				cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+				cell.setColspan(1);
 				tab.addCell(cell);
 			}
 			// on ajoute au tableau
 			cell = new PdfPCell(new Phrase(eleve.getNom())) ;
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			cell.setColspan(3);
 			tab.addCell(cell);
 		}
+		tab.addCell(" ");
 		
 		// on retourne le tableau
 		return tab ;
@@ -381,7 +384,10 @@ public class PDFGen
 			addHeader(tournoi,doc);
 			// --------- Tableau global ----------------
 			// Creation du tableau global
-			PdfPTable tab = new PdfPTable(4) ;
+			PdfPTable tab = new PdfPTable(7) ;
+			
+			// --------- Colonne 1 : Niveau et Tableau Eleves -----------------
+
 			// Creation du tableau
 			PdfPTable tabListe = new PdfPTable(1) ;
 			// Creation d'une cellule
@@ -389,7 +395,6 @@ public class PDFGen
 			// nb cases vides
 			int nbVide = classe.getNbElevesNiveau(i) ;
 			
-			// --------- Colonne 1 : Niveau et Tableau Eleves -----------------
 			// Niveau
 			cell = new PdfPCell(new Phrase("Niveau "+ i)) ;
 			cell.setColspan(1);
@@ -456,10 +461,11 @@ public class PDFGen
 			// ---------- Ajout des 3 tableaux au tableaux global -----------
 			// on ajoute le tableau eleves	
 			cell = new PdfPCell(tabListe) ;
+			cell.setColspan(3);
 			tab.addCell(cell);
 			// on ajoute le tableau round
 			cell = new PdfPCell(tabRound) ;
-			cell.setColspan(2);
+			cell.setColspan(3);
 			tab.addCell(cell);
 			// on ajoute la colonne
 			cell = new PdfPCell(tabTotal) ;
@@ -678,7 +684,7 @@ public class PDFGen
 		while(it.hasNext())
 		{
 			// ------ Tableau global -------
-			PdfPTable tab = new PdfPTable(4) ;
+			PdfPTable tab = new PdfPTable(7) ;
 			
 			// recup l'eleve
 			Eleve eleve = it.next();
@@ -746,12 +752,16 @@ public class PDFGen
 			 
 			 // ------------- Ajoute tous les tableaux
 			 cell = new PdfPCell(tabEleve) ;
+			 cell.setColspan(2);
 			 tab.addCell(cell);
 			 cell = new PdfPCell(tabLegende) ;
+			 cell.setColspan(1);
 			 tab.addCell(cell);
 			 cell = new PdfPCell(tabRound) ;
+			 cell.setColspan(3);
 			 tab.addCell(cell);
 			 cell = new PdfPCell(tabTotal) ;
+			 cell.setColspan(1);
 			 tab.addCell(cell);
 			 
 			// ajoute un espace
