@@ -69,7 +69,7 @@ public class GUI {
 	JButton btnCreerMatchs;
 	JSpinner spinner;
 	JLabel lblNombreDeSolutions;
-	JCheckBox chkDivisionClasses;
+	JCheckBox chkSamePlayers;
 	JLabel lblMatchsDeNiveau1, lblMatchsDeNiveau2, lblMatchsDeNiveau3;
 	
 	JMenuItem mntmCrerLesFiches;
@@ -203,9 +203,14 @@ public class GUI {
 //		readFromJSON();
 		
 //		tournament = new Tournament(players1, NB_ROUNDS, FORGOTTEN_PERCENT, FORGET_TURNS_NUMBER, this);
-		tournament1 = new Tournament(players1, NB_ROUNDS, this, 1, chkDivisionClasses.isSelected());
-		tournament2 = new Tournament(players2, NB_ROUNDS, this, 2, chkDivisionClasses.isSelected());
-		tournament3 = new Tournament(players3, NB_ROUNDS, this, 3, chkDivisionClasses.isSelected());
+		
+		int canFightSamePlayers = Tournament.CANNOT_FIGHT_SAME_PLAYER_TWICE;
+		if(chkSamePlayers.isSelected())
+			canFightSamePlayers = Tournament.CAN_FIGHT_SAME_PLAYER_TWICE;
+			
+		tournament1 = new Tournament(players1, NB_ROUNDS, this, 1, canFightSamePlayers);
+		tournament2 = new Tournament(players2, NB_ROUNDS, this, 2, canFightSamePlayers);
+		tournament3 = new Tournament(players3, NB_ROUNDS, this, 3, canFightSamePlayers);
 
 		//tournament.createMatches();
 		
@@ -235,6 +240,7 @@ public class GUI {
 //		initTournament();
 		
 		frmOrganisationDeTournois = new JFrame();
+		frmOrganisationDeTournois.setIconImage(Toolkit.getDefaultToolkit().getImage(GUI.class.getResource("/icon.png")));
 		frmOrganisationDeTournois.setBackground(Color.WHITE);
 		frmOrganisationDeTournois.setTitle("Organisation de tournois scolaires d'\u00E9checs");
 	//	frmOrganisationDeTournois.setIconImage(Toolkit.getDefaultToolkit().getImage(GUI.class.getResource("/icon.png")));
@@ -286,10 +292,10 @@ public class GUI {
 		btnCreerMatchs = new JButton("2. Cr\u00E9er les matchs");
 		btnCreerMatchs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				readFromJSON(null);
 				actCreateMatches();
 			}
 		});
-		btnCreerMatchs.setEnabled(false);
 		GridBagConstraints gbc_btnCreerMatchs = new GridBagConstraints();
 		gbc_btnCreerMatchs.weightx = 0.33;
 		gbc_btnCreerMatchs.weighty = 0.1;
@@ -372,11 +378,10 @@ public class GUI {
 		gbc_panel_9.gridy = 2;
 		panel_7.add(panel_9, gbc_panel_9);
 		
-		chkDivisionClasses = new JCheckBox("Autoriser la subdivision des classes");
-		chkDivisionClasses.setEnabled(false);
-		chkDivisionClasses.setBackground(Color.WHITE);
-		chkDivisionClasses.setSelected(true);
-		panel_9.add(chkDivisionClasses);
+		chkSamePlayers = new JCheckBox("Autoriser les joueurs \u00E0 s'affronter plusieurs fois");
+		chkSamePlayers.setSelected(true);
+		chkSamePlayers.setBackground(Color.WHITE);
+		panel_9.add(chkSamePlayers);
 		
 		lblResultProg = new JLabel("R\u00E9sultats de la programmation");
 		lblResultProg.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -610,7 +615,7 @@ public class GUI {
 		btnCreerMatchs.setEnabled(true);
 		lblNombreDeSolutions.setEnabled(true);
 		spinner.setEnabled(true);
-		chkDivisionClasses.setEnabled(true);
+		chkSamePlayers.setEnabled(true);
 		lblMatchsDeNiveau1.setEnabled(true);
 		lblMatchsDeNiveau2.setEnabled(true);
 		lblMatchsDeNiveau3.setEnabled(true);
@@ -646,34 +651,37 @@ public class GUI {
 				
 				progress += (float) i/(Integer) spinner.getValue();
 				
-				if(foundMatches1) {
-					tournament1.createMatches();
-					float score1 = tournament1.getSolutionScore();
+				if(foundMatches1)
+					foundMatches1 = foundMatches1 && tournament1.createMatches();
+				else
+					foundMatches1 = foundMatches1 && tournament1.createMatches(Tournament.CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE);
 					
-					if(score1 > bestScore1) {
-						matches1 = tournament1.getMatches();
-						bestScore1 = score1;
-					}
+				float score1 = tournament1.getSolutionScore();
+				if(score1 > bestScore1) {
+					matches1 = tournament1.getMatches();
+					bestScore1 = score1;
+				}
+
+				if(foundMatches2)
+					foundMatches2 = foundMatches2 && tournament2.createMatches();
+				else
+					foundMatches2 = foundMatches2 && tournament2.createMatches(Tournament.CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE);
+				
+				float score2 = tournament2.getSolutionScore();	
+				if(score2 > bestScore2) {
+					matches2 = tournament2.getMatches();
+					bestScore2 = score2;
 				}
 				
-				if(foundMatches2) {
-					tournament2.createMatches();
-					float score2 = tournament2.getSolutionScore();
-					
-					if(score2 > bestScore2) {
-						matches2 = tournament2.getMatches();
-						bestScore2 = score2;
-					}
-				}
+				if(foundMatches3)
+					foundMatches3 = foundMatches3 && tournament3.createMatches();
+				else
+					foundMatches3 = foundMatches3 && tournament3.createMatches(Tournament.CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE);
 				
-				if(foundMatches3) {
-					tournament3.createMatches();
-					float score3 = tournament3.getSolutionScore();
-					
-					if(score3 > bestScore3) {
-						matches3 = tournament3.getMatches();
-						bestScore3 = score3;
-					}
+				float score3 = tournament3.getSolutionScore();
+				if(score3 > bestScore3) {
+					matches3 = tournament3.getMatches();
+					bestScore3 = score3;
 				}
 				
 			}
@@ -706,9 +714,15 @@ public class GUI {
 					"Nombre de joueurs impairs",
 					JOptionPane.WARNING_MESSAGE);
 		}
+		catch(Tournament.NeedSamePlayersException e) {
+			displayPopUp("Impossible de trouver une solution pour les élèves du niveau " + e.getLevel() + ".\n"
+					+ "Modifiez les groupes ou autorisez les joueurs à s'affronter plusieurs fois pour obtenir une solution.",
+					"Impossible de trouver une solution",
+					JOptionPane.WARNING_MESSAGE);
+		}
 		catch(Tournament.NoSolutionFoundException e) {
 			displayPopUp("Impossible de trouver une solution pour les élèves du niveau " + e.getLevel() + ".\n"
-					+ "Modifiez les groupes ou autorisez la subdivision des classes pour obtenir une solution.",
+					+ "Modifiez les groupes pour obtenir une solution.",
 					"Impossible de trouver une solution",
 					JOptionPane.WARNING_MESSAGE);
 		}
@@ -717,6 +731,19 @@ public class GUI {
 			e.printStackTrace();
 		}
 		finally {
+			
+			int[][] otherMatches = tournament3.getOtherMatches();
+			
+			for(int i=0; i<players3.size(); i++) {
+				System.out.print("Player " + i + "(" + players3.get(i).getId() + "): ");
+				
+				for(int j=0; j<NB_ROUNDS; j++)
+					System.out.print(otherMatches[i][j] + " ");
+				
+				System.out.println();
+			}
+			
+			
 			progress = -1;
 		}
 
@@ -805,8 +832,8 @@ public class GUI {
 		JSONParser parser = new JSONParser();
 		JSONObject obj = null;
 		try {
-//			obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
-			obj = (JSONObject) parser.parse(new FileReader(playersFile));
+			obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
+//			obj = (JSONObject) parser.parse(new FileReader(playersFile));
 		} catch (IOException | ParseException e) {
 			displayPopUp("Le fichier de données est incorrect.\n"
 					+ "Il est préférable de toujours utiliser l'application web pour le générer.",
@@ -881,7 +908,7 @@ public class GUI {
         matchsTable1.setTableHeader(null);
         matchsTable1.setModel(dtm);
         
-        players1 = tournament1.getPlayers();
+        players1 = tournament3.getPlayers();
         
         String[] headers = new String[players1.size() + 1];
         headers[0] = "";
@@ -892,7 +919,7 @@ public class GUI {
         
 //        dtm.addRow(new Object[] {"toto", "toto", "toto", "toto"});
         
-        int[][] matches = tournament1.getMatches();
+        int[][] matches = tournament3.getMatches();
         
         for(int i=0; i<players1.size(); i++) {
         	

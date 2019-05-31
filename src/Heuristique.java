@@ -22,7 +22,7 @@ public class Heuristique {
 	
 	private static ArrayList<Player> players = new ArrayList<>();
 	
-	public static void main(String[] args) throws Tournament.OddClassException, Tournament.NoSolutionFoundException {
+	public static void main(String[] args) throws Tournament.OddClassException, Tournament.NoSolutionFoundException, Tournament.NeedSamePlayersException {
 		
 		readFromJSON();
 		
@@ -34,7 +34,7 @@ public class Heuristique {
 			float FORGOTTEN_PERCENT = (float) solNumber/100;
 			
 //			Tournament tournament = new Tournament(players, NB_ROUNDS, (float) 0.1, FORGET_TURNS_NUMBER, null);
-			Tournament tournament = new Tournament(players, NB_ROUNDS, null, 0, true);
+			Tournament tournament = new Tournament(players, NB_ROUNDS, null, 0, Tournament.CANNOT_FIGHT_SAME_PLAYER_TWICE);
 			
 			// Moyenne de temps pour NB_SOLUTIONS solutions
 			long sum_duration = 0;

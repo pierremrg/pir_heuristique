@@ -11,7 +11,12 @@ public class Tournament {
 	
 	private GUI gui;
 	private int level; // Niveau du tournoi (pour le message d'erreur si nombre impair)
-	private boolean canDivideClasses; // Possibilité de diviser les classes que si la cache est cochée
+//	private boolean canDivideClasses; // Possibilité de diviser les classes que si la cache est cochée
+	
+	public static final int CANNOT_FIGHT_SAME_PLAYER_TWICE = 0;
+	public static final int CAN_FIGHT_SAME_PLAYER_TWICE = 1;
+	public static final int CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE = 2;
+	private int canFightSamePlayerTwice; // Possibilité d'affronter plusieurs fois le même joueur
 	
 	// Pour deux élèves de la même classe
 	private static final int NO_POSSIBLE_MATCH = -1;
@@ -29,6 +34,7 @@ public class Tournament {
 	private final int roundsNumber;
 	private final int playersNumber;
 	private int[][] matches;
+	private int[][] otherMatches;
 	
 	// Un tableau d'ArrayList => contient la liste de tous les matches prévus pour chaque joueur
 	// Permet que si A joue contre B au round R, on ne cherche pas d'adversaire ensuite pour B au round R
@@ -43,6 +49,7 @@ public class Tournament {
 //	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(Arrays.asList(6,2,8,4,10,8,7,6));
 //	private final ArrayList<Integer> classeSize = new ArrayList<Integer>(Arrays.asList(30,20,25,25,25,25,25,25));
 	
+	private ArrayList<Player> unsortedPlayers;
 	private ArrayList<Player> players;
 	private ArrayList<Integer>[] classPlayersId;
 	private ArrayList<Integer>[] possibleOpponentsId;
@@ -74,14 +81,29 @@ public class Tournament {
 			return this.level;
 		}
 	};
+		
+	// Exception si pas de solution trouvée - on propose d'affronter plusieurs fois le même joueur
+	@SuppressWarnings("serial")
+	public static class NeedSamePlayersException extends Exception {
+		int level;
+
+		public NeedSamePlayersException(int level) {
+			this.level = level;
+		}
+		
+		public int getLevel() {
+			return this.level;
+		}
+	};
 	
 	@SuppressWarnings("unchecked")
- 	public Tournament(ArrayList<Player> ps, int roundsNumber, GUI gui, int level, boolean canDivideClasses) throws OddClassException {
+ 	public Tournament(ArrayList<Player> ps, int roundsNumber, GUI gui, int level, int canFightSamePlayerTwice) throws OddClassException {
 		this.gui = gui;
 		this.level = level;
-		this.canDivideClasses = canDivideClasses;
+		this.canFightSamePlayerTwice = canFightSamePlayerTwice;
 		
 		this.players = ps;
+		this.unsortedPlayers = new ArrayList<Player>(ps);
 		
 		playersNumber = players.size();
 		
@@ -100,33 +122,42 @@ public class Tournament {
 		
 		// Tableau contenant les IDs des élèves pour chaque classe
 		// Aide pour le random (évite de tomber sur une personne de la même classe)
-		int idCurrentClass = players.get(0).getClasseId();
-		int nbClasses = 1;
-		for (Player p : players) {
-			if (p.getClasseId() > idCurrentClass) {
-				nbClasses=p.getClasseId()+1;
-				idCurrentClass = p.getClasseId();
+		
+		if(players.size() > 0) {
+		
+			int idCurrentClass = players.get(0).getClasseId();
+			int nbClasses = 1;
+			for (Player p : players) {
+				if (p.getClasseId() > idCurrentClass) {
+					nbClasses=p.getClasseId()+1;
+					idCurrentClass = p.getClasseId();
+				}
 			}
-		}
-		classesNumber = nbClasses;
+			classesNumber = nbClasses;
+			
+			classPlayersId = new ArrayList[classesNumber];
+			for(int i=0; i<classesNumber; i++) {
+				classPlayersId[i] = new ArrayList<Integer>();
+			}
+			for (Player p : players) {
+	//			System.out.println("test: " + p.getClasseId());
+				classPlayersId[p.getClasseId()].add(p.getId());
+			}
+			for(int i=0; i < classesNumber; i++) {
+				classeSize.add(classPlayersId[i].size());
+			}
+			
+			if(canFightSamePlayerTwice != CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE)
+				sortPlayers();
+			
+			// createPlayers();
+			
+			generatePossibleOpponents();
 		
-		classPlayersId = new ArrayList[classesNumber];
-		for(int i=0; i<classesNumber; i++) {
-			classPlayersId[i] = new ArrayList<Integer>();
 		}
-		for (Player p : players) {
-//			System.out.println("test: " + p.getClasseId());
-			classPlayersId[p.getClasseId()].add(p.getId());
+		else {
+			classesNumber = 0;
 		}
-		for(int i=0; i < classesNumber; i++) {
-			classeSize.add(classPlayersId[i].size());
-		}
-		
-		sortPlayers();
-		
-		// createPlayers();
-		
-		generatePossibleOpponents();
 		
 		createBaseMatches();
 		
@@ -209,8 +240,10 @@ public class Tournament {
 		// Tableau qui contient tous les IDs
 		ArrayList<Integer> allPlayersIds = new ArrayList<Integer>();
 		
-		for(int i=0; i<playersNumber; i++)
+		for(int i=0; i<playersNumber; i++) {
 			allPlayersIds.add(i);
+		}
+			
 		
 //		for(int classe=0; classe<classesNumber; classe++) {
 //			possibleOpponentsId[classe] = new ArrayList<Integer>(allPlayersIds);
@@ -239,6 +272,24 @@ public class Tournament {
 				if(!colorsMatch(i, j))
 					possibleOpponentsId[i].remove(possibleOpponentsId[i].indexOf(j));
 			}
+			
+//			int i
+//			
+//			possibleOpponentsId[players.get(i).getId()] = new ArrayList<Integer>(allPlayersIds);
+//			
+//			int classeSize = classPlayersId[players.get(i).getClasseId()].size();
+//			
+//			for(int j=0; j<classeSize; j++) {
+//				possibleOpponentsId[players.get(i).getId()].remove(classPlayersId[players.get(i).getClasseId()].get(j));
+//			}
+//			
+//			ArrayList<Integer> tmp = new ArrayList<Integer>(possibleOpponentsId[i]);
+//			
+////			for(int j=0; j<playersNumber; j++) {
+//			for(int j : tmp) {
+//				if(!colorsMatch(i, j))
+//					possibleOpponentsId[i].remove(possibleOpponentsId[i].indexOf(j));
+//			}
 			
 		}
 
@@ -283,6 +334,7 @@ public class Tournament {
 	private void createBaseMatches() {
 		
 		matches = new int[playersNumber][playersNumber];
+		otherMatches = new int[playersNumber][roundsNumber];
 		
 		for(int i=0; i<playersNumber; i++) {
 			for(int j=0; j<playersNumber; j++) {
@@ -291,12 +343,21 @@ public class Tournament {
 					matches[i][j] = NO_POSSIBLE_MATCH;
 				
 			}
+			
+			for(int j=0; j<roundsNumber; j++)
+				otherMatches[i][j] = -1;
 		}
+		
 		
 	}
 	
 	private boolean colorsMatch(int playerId1, int playerId2) {
 		return (playerId1 % 2 != playerId2 % 2);
+	}
+	
+	public boolean createMatches(int canFightSamePlayerTwice) throws OddClassException, NeedSamePlayersException, NoSolutionFoundException {
+		this.canFightSamePlayerTwice = canFightSamePlayerTwice;
+		return createMatches();
 	}
 	
 	/**
@@ -305,7 +366,7 @@ public class Tournament {
 	 * @throws OddClassException
 	 * @throws NoSolutionFoundException
 	 */
-	public boolean createMatches() throws OddClassException, NoSolutionFoundException {
+	public boolean createMatches() throws OddClassException, NeedSamePlayersException, NoSolutionFoundException {
 
 //		System.out.println("Génération des matches (" + playersNumber + " joueurs / " + classesNumber + " classes / " + roundsNumber + " rounds)...");
 		
@@ -318,18 +379,23 @@ public class Tournament {
 			
 			tries++;
 //			System.out.println(tries);
-			if(tries > 5000) {
+			if(tries > 5000 && canFightSamePlayerTwice != CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE) {
 //				System.out.println("PAS DE MATCH POSSIBLE !");
 				
-				gui.displayMatchsTable(); // TODO A supprimer
+//				gui.displayMatchsTable(); // TODO A supprimer
 				
-				if(canDivideClasses) {
-					gui.writeConsole("Pas de solution trouvée (pour le niveau " + level + "). Division de la classe la plus grande.");
-					divideBiggestClass();
+				if(canFightSamePlayerTwice == CAN_FIGHT_SAME_PLAYER_TWICE) {
+//					gui.writeConsole("Pas de solution trouvée (pour le niveau " + level + "). Division de la classe la plus grande.");
+//					divideBiggestClass();
+					gui.writeConsole("Pas de solution trouvée (pour le niveau " + level + "). Certains joueurs s'affronteront deux fois.");
+					createMatchesWithSamePlayers();
 				}
 				
-				else
+				else if(canFightSamePlayerTwice == CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE)
 					throw new NoSolutionFoundException(level);
+					
+				else
+					throw new NeedSamePlayersException(level);
 				
 				tries = 0;
 				
@@ -478,9 +544,12 @@ public class Tournament {
 //				int advId = possibleOpponentsId.get(rand.nextInt(opponentSize));
 				int advId = possibleOpponentsId[i].get(rand.nextInt(opponentSize));
 				
+//				if(canFightSamePlayerTwice == CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE)
+//					System.out.println(i + " " + possibleOpponentsId[i].toString());
+				
 				// Si les deux joueurs pas dans la même classe et qu'aucun match n'est prévu
 //				if(matches[i][advId] == 0 && colorsMatch(i, advId) && !doneMatches[advId].contains(round)) {
-				if(matches[i][advId] == 0 && !doneMatches[advId].contains(round)) {
+				/*if(matches[i][advId] == 0 && !doneMatches[advId].contains(round)) {
 					matches[i][advId] = round;
 					matches[advId][i] = round;
 					doneMatches[i].add(round);
@@ -488,6 +557,38 @@ public class Tournament {
 					roundOK = true;
 					//changed = 1;
 					//roundOKCount++;
+				}*/
+				
+				// TODO
+				// Nouveaux tests (pour affronter plusieurs fois le même joueur si autorisé)
+				if(matches[i][advId] >= 0 && !doneMatches[advId].contains(round)) {
+					
+					if(matches[i][advId] == 0) {
+						
+						matches[i][advId] = round;
+						matches[advId][i] = round;
+						
+						doneMatches[i].add(round);
+						doneMatches[advId].add(round);
+						
+						roundOK = true;
+					}
+					else if(canFightSamePlayerTwice == CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE && loopCount > MAX_TRIES/4) {
+						
+//						if(loopCount % 1 == 0)
+//							System.out.println(i + " " + advId + " " + matches[i][advId]);
+						
+//						System.out.println(i + " " + loopCount);
+						
+						otherMatches[i][round-1] = advId;
+						otherMatches[advId][round-1] = 1000 + i;
+						
+						doneMatches[i].add(round);
+						doneMatches[advId].add(round);
+						
+						roundOK = true;
+					}
+					
 				}
 				
 			}
@@ -573,11 +674,44 @@ public class Tournament {
 		return notCompleted;
 	}*/
 	
-	/**
+	
+	private void createMatchesWithSamePlayers() throws OddClassException, NeedSamePlayersException {
+		
+		players = unsortedPlayers;
+		
+		System.out.println("2e");
+		Tournament newTournament = new Tournament(players, roundsNumber, gui, level, CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE);
+		try {
+			newTournament.createMatches();
+		} catch (NoSolutionFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+//			int[][] otherMatches = getOtherMatches();
+//			
+//			for(int i=0; i<playersNumber; i++) {
+//				System.out.print("Player " + i + "(" + players.get(i).getId() + "): ");
+//				
+//				for(int j=0; j<roundsNumber; j++)
+//					System.out.print(otherMatches[i][j] + " ");
+//				
+//				System.out.println();
+//			}
+		}
+		
+		this.matches = newTournament.getMatches();
+		this.otherMatches = newTournament.getOtherMatches();
+		
+//		System.out.println(newTournament.getMatchesTable());
+		
+	}
+	
+	/*
 	 * Divise la plus grande classe en deux (la classe d'origine + rajoute une nouvelle classe)
 	 * @throws OddClassException 
 	 * @throws NoSolutionFoundException 
-	 */
+	 *
 	private void divideBiggestClass() throws OddClassException, NoSolutionFoundException {
 		
 		ArrayList<Integer> tempClasseSize = new ArrayList<Integer>(classeSize);
@@ -621,7 +755,7 @@ public class Tournament {
 		
 //		System.out.println(newTournament.getMatchesTable());
 		
-	}
+	}*/
 	
 	
 	/**
@@ -669,14 +803,23 @@ public class Tournament {
 	}
 	
 	public double getAverageScore() {
+		if(classesNumber == 0)
+			return 0;
+		
 		return Arrays.stream(scores).average().getAsDouble();
 	}
 	
 	private int getMinScore() {
+		if(classesNumber == 0)
+			return 0;
+		
 		return Arrays.stream(scores).min().getAsInt();
 	}
 	
 	private int getMaxScore() {
+		if(classesNumber == 0)
+			return 0;
+		
 		return Arrays.stream(scores).max().getAsInt();
 	}
 	
@@ -794,6 +937,10 @@ public class Tournament {
 	
 	public void setMatches(int[][] matches) {
 		this.matches = matches;
+	}
+	
+	public int[][] getOtherMatches(){
+		return this.otherMatches;
 	}
 	
 	public int getNbRounds()
