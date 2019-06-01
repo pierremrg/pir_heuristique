@@ -22,3 +22,5 @@
 /GUI$8.class
 /GUI$9.class
 /Tournament$OddClassException.class
+/Tournament$NeedSamePlayersException.class
+/Tournament$NoSolutionFoundException.class

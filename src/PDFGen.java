@@ -413,7 +413,7 @@ public class PDFGen
 			// Creation du tableau des rounds
 			PdfPTable tabRound = new PdfPTable(6) ;
 			// legende rondes
-			cell = new PdfPCell(new Phrase("Rounds")) ;
+			cell = new PdfPCell(new Phrase("Rondes")) ;
 			cell.setColspan(6);
 			cell.setRowspan(2);
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -534,7 +534,7 @@ public class PDFGen
 		for (int i=1;i<nbRound+1;i++)
 		{
 			String nb = Integer.toString(i);
-			cell = new PdfPCell(new Phrase("Round " + nb));
+			cell = new PdfPCell(new Phrase("Ronde " + nb));
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			cell.setRowspan(1);
@@ -706,7 +706,7 @@ public class PDFGen
 			 
 			 // ---------- Tableau 2 : Legende
 			 PdfPTable tabLegende = new PdfPTable(1);
-			 cell = new PdfPCell(new Phrase("Round")) ;
+			 cell = new PdfPCell(new Phrase("Ronde")) ;
 			 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 			 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			 tabLegende.addCell(cell);

@@ -11,18 +11,12 @@ public class Classe
 	private ArrayList<Eleve> listeEleves ;
 	private BaseColor couleur ;
 	
-	public Classe(int id, String prof)
+	public Classe(int id, String prof, BaseColor coul)
 	{
 		this.id = id ;
 		this.prof = prof ;
+		this.couleur = coul ;
 		this.listeEleves = new ArrayList<Eleve>() ;
-		
-		// couleur en rvb random
-		int r = new Random().nextInt(200)+50;
-		int v = new Random().nextInt(200)+50;
-		int b = new Random().nextInt(200)+50;
-		
-		this.couleur = new BaseColor(r, v, b) ;
 	}
 	
 	// ----- getter
@@ -63,6 +57,7 @@ public class Classe
 		}
 		return null ;
 	}
+
 	
 	// ----- fonctions
 	// ajoute un élève a la classe

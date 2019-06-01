@@ -5,9 +5,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import com.itextpdf.text.BaseColor;
+
 public class JSONExtractor 
 {
-	
 	// -------------------------- EXTRACTION DU JSON ----------------------
 	// -------------------------- recupere le json ------------------------
 	public static Tournoi ExtractJSON(File file)
@@ -23,6 +24,10 @@ public class JSONExtractor
 		{
 			e.printStackTrace();
 		}
+		
+		// ------------- Couleur des classes  -------------
+		BaseColor[] tabCoul = {BaseColor.BLUE, BaseColor.ORANGE,BaseColor.GREEN, BaseColor.MAGENTA, BaseColor.CYAN, BaseColor.PINK, BaseColor.YELLOW, BaseColor.RED, BaseColor.LIGHT_GRAY}; 
+		
 
 		// ------- créé le tournoi ---------
 		// recupere les infos du tournoi
@@ -44,8 +49,11 @@ public class JSONExtractor
 			// recup les infos de la classe
 			int idClasse = Integer.parseInt((String)classe.get("id") );
 			String prof = (String)classe.get("prof") ;
+			// attribue une couleur
+			BaseColor couleur = tabCoul[idClasse] ;
+						
 			// créé la classe
-			Classe cl = new Classe(idClasse, prof) ;
+			Classe cl = new Classe(idClasse, prof, couleur) ;
 			
 			// recup la liste des eleves et la parcourt
 			JSONArray listeEleve = (JSONArray)classe.get("eleve") ;

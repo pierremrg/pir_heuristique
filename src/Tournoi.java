@@ -164,14 +164,22 @@ public class Tournoi
 		}
 		return false ;
 	}
+	
+	// ajoute tous les matches en parcourant les 2 tableaux, pour 1 niveau
 	public void addAllRoundNiv(Tournament t, int niv)
 	{
-		// recuperation des matches
+		// recuperation des tableaux des matches
 		int[][] tabMatch = t.getMatches() ;
+		int [][] tabOtherMatch = t.getOtherMatches() ;
+		
+		
 		//parcourt des rounds
 		for (int i=1;i<=this.listeRound.size();i++)
 		{
+			// ---------------------- Matches Tableau 1 ------------------
+
 			//parcourt du tableau de matches
+			// les lignes et les colonnes sont les eleves, les cases le numero du round
 			for(int j=0;j<tabMatch.length;j++)
 			{
 				 for(int k=0;k<tabMatch.length;k++)
@@ -203,9 +211,47 @@ public class Tournoi
 						}
 					 }
 				 }
-			}		
+			}
+			
 
-		}
+			// ---------------------- Matches Tableau 2
+			// parcourt le tableau [player][round]
+			// les colonnes sont les rounds, les lignes les eleves, les cases les eleves adversaires
+			// parcours des lignes pour CE round i
+			for(int l=0;l<tabOtherMatch.length;l++)
+			{
+				 // on recup l'adversaire potentiel
+				int adv = tabOtherMatch[l][i-1] ;
+				
+				
+				// si il s'agit d'un match
+				if(adv != -1)
+				{
+					System.out.println("ligne "+ l + " col " + i + " adv " +adv) ;
+
+					// on recupere l'id des players associés à cette case
+					int id1 = t.getPlayers().get(l).getId() ;
+					int id2 = t.getPlayers().get(adv).getId() ;
+	
+					// on recupere les eleves grace aux id
+					Eleve e1 = this.getEleveFromId(id1) ;
+					Eleve e2 = this.getEleveFromId(id2) ;
+				
+					// on ajoute pas au groupe couleur car il s'agit de matchs en plus, normalement l'eleve a déja été ajouté
+					
+					System.out.println("match bis") ;
+
+					
+					// on verifie que le match n'existe pas
+					if(!this.matchExists(e1, e2, i))
+					{
+						// a l'ajoute
+						this.listeRound.get(i-1).addMatch(new Match(e1,e2,i));
+						System.out.println("ajout other match" + e1.getId()+" vs "+e2.getId()) ;
+					}			
+				}	
+			}
+		}		
 	}
 	
 	// gere les numeros de tables

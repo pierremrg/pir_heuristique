@@ -240,7 +240,7 @@ public class GUI {
 //		initTournament();
 		
 		frmOrganisationDeTournois = new JFrame();
-		frmOrganisationDeTournois.setIconImage(Toolkit.getDefaultToolkit().getImage(GUI.class.getResource("/icon.png")));
+	//	frmOrganisationDeTournois.setIconImage(Toolkit.getDefaultToolkit().getImage(GUI.class.getResource("/icon.png")));
 		frmOrganisationDeTournois.setBackground(Color.WHITE);
 		frmOrganisationDeTournois.setTitle("Organisation de tournois scolaires d'\u00E9checs");
 	//	frmOrganisationDeTournois.setIconImage(Toolkit.getDefaultToolkit().getImage(GUI.class.getResource("/icon.png")));
