@@ -581,7 +581,7 @@ public class Tournament {
 //						System.out.println(i + " " + loopCount);
 						
 						otherMatches[i][round-1] = advId;
-						otherMatches[advId][round-1] = 1000 + i;
+						otherMatches[advId][round-1] = i;
 						
 						doneMatches[i].add(round);
 						doneMatches[advId].add(round);

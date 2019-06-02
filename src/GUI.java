@@ -908,12 +908,12 @@ public class GUI {
         matchsTable1.setTableHeader(null);
         matchsTable1.setModel(dtm);
         
-        players1 = tournament3.getPlayers();
+        players3 = tournament3.getPlayers();
         
-        String[] headers = new String[players1.size() + 1];
+        String[] headers = new String[players3.size() + 1];
         headers[0] = "";
-        for(int i=0; i<players1.size(); i++)
-        	headers[i+1] = players1.get(i).getId() + " [" + players1.get(i).getClasseId() + "]";
+        for(int i=0; i<players3.size(); i++)
+        	headers[i+1] = players3.get(i).getId() + " [" + players3.get(i).getClasseId() + "]";
         
         dtm.setColumnIdentifiers(headers); // Doit etre mis avant d'ajouter les donnees !
         
@@ -921,9 +921,9 @@ public class GUI {
         
         int[][] matches = tournament3.getMatches();
         
-        for(int i=0; i<players1.size(); i++) {
+        for(int i=0; i<players3.size(); i++) {
         	
-        	Object[] data = new Object[players1.size() + 1];
+        	Object[] data = new Object[players3.size() + 1];
         	
 //        	Object[] data = ArrayUtil.toObject(matches[i]);
 //        	DefaultTableModel.con
@@ -931,9 +931,9 @@ public class GUI {
 //			Vector<Integer> data = new Vector(Arrays.asList(matches[i]));
 //        	dtm.addRow(data);
         	
-        	data[0] = players1.get(i).getId() + " [" + players1.get(i).getClasseId() + "]";
+        	data[0] = players3.get(i).getId() + " [" + players3.get(i).getClasseId() + "]";
         	
-        	for(int j=0; j<players1.size(); j++) {
+        	for(int j=0; j<players3.size(); j++) {
         		data[j+1] = (matches[i][j] != 0) ? matches[i][j] : "";
         		
         		

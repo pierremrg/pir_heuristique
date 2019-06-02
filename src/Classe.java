@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Random;
 
 import com.itextpdf.text.BaseColor;
 

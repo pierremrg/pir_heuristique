@@ -26,7 +26,20 @@ public class JSONExtractor
 		}
 		
 		// ------------- Couleur des classes  -------------
-		BaseColor[] tabCoul = {BaseColor.BLUE, BaseColor.ORANGE,BaseColor.GREEN, BaseColor.MAGENTA, BaseColor.CYAN, BaseColor.PINK, BaseColor.YELLOW, BaseColor.RED, BaseColor.LIGHT_GRAY}; 
+		BaseColor[] tabCoul = {
+				new BaseColor(26, 129, 197),
+				BaseColor.ORANGE,
+				new BaseColor(58, 241, 158),
+				new BaseColor(229, 100, 77),
+				new BaseColor(176, 220, 249),
+				BaseColor.PINK,
+				new BaseColor(247, 236, 92),
+				BaseColor.MAGENTA,
+				BaseColor.LIGHT_GRAY,
+				BaseColor.DARK_GRAY,
+				BaseColor.GRAY,
+				BaseColor.WHITE
+		}; 
 		
 
 		// ------- créé le tournoi ---------
