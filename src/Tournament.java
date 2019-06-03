@@ -762,7 +762,7 @@ public class Tournament {
 	 * Retourne le global_score de la solution actuelle
 	 * @return global_score(s) = average_score(s) - 2 * weight_lowest_score(s)
 	 */
-	public float getSolutionScore() {
+	public float getSolutionScore(int minDifferentClassesNumber) {
 		computePlayersScores();
 		
 		double averageScore = getAverageScore();
@@ -777,9 +777,14 @@ public class Tournament {
 		}
 		weightLowestScore /= playersNumber;
 		
+		// On pénalise fortement les classes qui ne respectent pas la contrainte du nombre minimal de classes différentes à affronter
+		int penalty = 0;
+		if(lowestScore < minDifferentClassesNumber)
+			penalty = 1000;
+		
 		// Average score entre 1 et 6 (souvent 4-5)
 		// weightLowestScore entre 0 et 1 (souvent 0.5)
-		return (float) (averageScore - 2 * weightLowestScore);
+		return (float) (averageScore - 2 * weightLowestScore) - penalty;
 	}
 	
 	private void computePlayersScores() {

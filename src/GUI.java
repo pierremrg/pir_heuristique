@@ -50,6 +50,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import java.awt.Component;
+import javax.swing.Box;
 
 
 public class GUI {
@@ -75,6 +77,7 @@ public class GUI {
 	JMenuItem mntmCrerLesFiches;
 	JButton btnCreerFiches;
 	public JLabel lblResultProg;
+	JSpinner spinnerMinClassesNumber;
 	
 	
 	// Tournois
@@ -367,6 +370,16 @@ public class GUI {
 		spinner.setModel(new SpinnerNumberModel(100, 1, 1000, 100));
 		panel_8.add(spinner);
 		
+		Component horizontalStrut = Box.createHorizontalStrut(20);
+		panel_8.add(horizontalStrut);
+		
+		JLabel lblNombreDeClasses = new JLabel("Nombre de classes diff\u00E9rentes \u00E0 affronter au minimum");
+		panel_8.add(lblNombreDeClasses);
+		
+		spinnerMinClassesNumber = new JSpinner();
+		spinnerMinClassesNumber.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
+		panel_8.add(spinnerMinClassesNumber);
+		
 		JPanel panel_9 = new JPanel();
 		panel_9.setBackground(Color.WHITE);
 		panel_9.setBorder(new LineBorder(Color.LIGHT_GRAY, 1, true));
@@ -634,18 +647,20 @@ public class GUI {
 			
 			long startTime = System.nanoTime();
 			
+			int minClassesNumber = (Integer) spinnerMinClassesNumber.getValue();
+			
 			// Calcul des meilleures solutions
 			boolean foundMatches1 = tournament1.createMatches();
 			matches1 = tournament1.getMatches();
-			float bestScore1 = tournament1.getSolutionScore();
+			float bestScore1 = tournament1.getSolutionScore(minClassesNumber);
 			
 			boolean foundMatches2 = tournament2.createMatches();
 			matches2 = tournament2.getMatches();
-			float bestScore2 = tournament2.getSolutionScore();
+			float bestScore2 = tournament2.getSolutionScore(minClassesNumber);
 			
 			boolean foundMatches3 = tournament3.createMatches();
 			matches3 = tournament3.getMatches();
-			float bestScore3 = tournament3.getSolutionScore();
+			float bestScore3 = tournament3.getSolutionScore(minClassesNumber);
 			
 			for(int i=1; i < (Integer) spinner.getValue(); i++) {
 				
@@ -656,7 +671,7 @@ public class GUI {
 				else
 					foundMatches1 = foundMatches1 && tournament1.createMatches(Tournament.CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE);
 					
-				float score1 = tournament1.getSolutionScore();
+				float score1 = tournament1.getSolutionScore(minClassesNumber);
 				if(score1 > bestScore1) {
 					matches1 = tournament1.getMatches();
 					bestScore1 = score1;
@@ -667,7 +682,7 @@ public class GUI {
 				else
 					foundMatches2 = foundMatches2 && tournament2.createMatches(Tournament.CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE);
 				
-				float score2 = tournament2.getSolutionScore();	
+				float score2 = tournament2.getSolutionScore(minClassesNumber);	
 				if(score2 > bestScore2) {
 					matches2 = tournament2.getMatches();
 					bestScore2 = score2;
@@ -678,7 +693,7 @@ public class GUI {
 				else
 					foundMatches3 = foundMatches3 && tournament3.createMatches(Tournament.CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE);
 				
-				float score3 = tournament3.getSolutionScore();
+				float score3 = tournament3.getSolutionScore(minClassesNumber);
 				if(score3 > bestScore3) {
 					matches3 = tournament3.getMatches();
 					bestScore3 = score3;
@@ -690,6 +705,16 @@ public class GUI {
 			
 			long timeElapsed = System.nanoTime() - startTime;
 			writeConsole("Matches créés pour " + allPlayers.size() + " joueurs et " + NB_ROUNDS + " rounds en " + (float)timeElapsed/1000000.0 + " ms");
+			
+			if(bestScore1 < 0)
+				writeConsole("La contrainte du nombre minimum de classes différentes a dû être ignoré pour le groupe 1.");
+			
+			if(bestScore2 < 0)
+				writeConsole("La contrainte du nombre minimum de classes différentes a dû être ignoré pour le groupe 2.");
+			
+			if(bestScore3 < 0)
+				writeConsole("La contrainte du nombre minimum de classes différentes a dû être ignoré pour le groupe 3.");
+				
 	
 			// Messages 1er onglet
 			lblMatchsDeNiveau1.setText("Matchs de niveau 1 : " + (Math.round(tournament1.getAverageScore()*100)/100.0) +
