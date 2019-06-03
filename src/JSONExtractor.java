@@ -79,6 +79,11 @@ public class JSONExtractor
 				int idEleve = Integer.parseInt((String)eleve.get("id")) ;
 				String nomEleve = (String)eleve.get("nom") ;
 				int niveau = Integer.parseInt((String)eleve.get("niveau"));
+				// coupe le nom si trop long
+				if (nomEleve.length()>16)
+				{
+					nomEleve = nomEleve.substring(0, 16) ;
+				}
 				// créé l'eleve
 				Eleve el = new Eleve(idEleve, nomEleve, idClasse, niveau) ;
 				// ajoute à la classe
