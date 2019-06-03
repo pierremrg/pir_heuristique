@@ -24,3 +24,4 @@
 /Tournament$OddClassException.class
 /Tournament$NeedSamePlayersException.class
 /Tournament$NoSolutionFoundException.class
+/WaitThread.class

@@ -67,7 +67,7 @@ public class PDFGen
 		PdfPTable tab ;	
 		if(idOui)
 		{	
-			tab = new PdfPTable(4) ;
+			tab = new PdfPTable(5) ;
 		}
 		else
 		{
@@ -78,7 +78,7 @@ public class PDFGen
 		PdfPCell cell = new PdfPCell(new Phrase(classe.getProf())) ;
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-		cell.setColspan(4);
+		cell.setColspan(5);
 		cell.setBackgroundColor(classe.getCouleur());
 		tab.addCell(cell);
 			
@@ -101,7 +101,7 @@ public class PDFGen
 			// on ajoute au tableau
 			cell = new PdfPCell(new Phrase(eleve.getNom())) ;
 			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			cell.setColspan(3);
+			cell.setColspan(4);
 			tab.addCell(cell);
 		}
 		tab.addCell(" ");
@@ -377,14 +377,16 @@ public class PDFGen
 	// ajoute un tableau de resultat pour chaque niveau d'une classe
 	public static void addTabResultats (Classe classe, Document doc, Tournoi tournoi)
 	{
+		// --------- Header titre et date -----------
+		addHeader(tournoi,doc);
+		
+		
 		// Pour chaque niveau, on remplit et ajoute le tableau
 		for(int i=1;i<4;i++)
 		{		
-			// --------- Header titre et date -----------
-			addHeader(tournoi,doc);
 			// --------- Tableau global ----------------
 			// Creation du tableau global
-			PdfPTable tab = new PdfPTable(7) ;
+			PdfPTable tab = new PdfPTable(8) ;
 			
 			// --------- Colonne 1 : Niveau et Tableau Eleves -----------------
 
@@ -461,7 +463,7 @@ public class PDFGen
 			// ---------- Ajout des 3 tableaux au tableaux global -----------
 			// on ajoute le tableau eleves	
 			cell = new PdfPCell(tabListe) ;
-			cell.setColspan(3);
+			cell.setColspan(4);
 			tab.addCell(cell);
 			// on ajoute le tableau round
 			cell = new PdfPCell(tabRound) ;
@@ -475,13 +477,22 @@ public class PDFGen
 			try
 			{
 				doc.add(tab) ;
-				doc.newPage() ;
+				doc.add(new Paragraph(" "));
 			}
 			catch(Exception e)
 			{
 				e.printStackTrace();
 			}
-		}		
+		}
+		// ------------ Saut de page --------------------
+		try
+		{
+			doc.newPage() ;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 // --------- Doc 4 : Tableau des matchs -------------------------

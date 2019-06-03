@@ -171,8 +171,7 @@ public class Tournoi
 		// recuperation des tableaux des matches
 		int[][] tabMatch = t.getMatches() ;
 		int [][] tabOtherMatch = t.getOtherMatches() ;
-		
-		
+	
 		//parcourt des rounds
 		for (int i=1;i<=this.listeRound.size();i++)
 		{
@@ -213,7 +212,6 @@ public class Tournoi
 				 }
 			}
 			
-
 			// ---------------------- Matches Tableau 2
 			// parcourt le tableau [player][round]
 			// les colonnes sont les rounds, les lignes les eleves, les cases les eleves adversaires
@@ -222,7 +220,7 @@ public class Tournoi
 			{
 				 // on recup l'adversaire potentiel
 				int adv = tabOtherMatch[l][i-1] ;
-				
+			//	System.out.println("round "+ i + " match: " + l+ " vs "+ tabOtherMatch[l][i-1]);
 				
 				// si il s'agit d'un match
 				if(adv != -1)
@@ -237,6 +235,9 @@ public class Tournoi
 					Eleve e1 = this.getEleveFromId(id1) ;
 					Eleve e2 = this.getEleveFromId(id2) ;
 				
+					System.out.println("round "+ i + " joueur " + e1.getId() + " adv " +e2.getId()) ;
+
+					
 					// on ajoute pas au groupe couleur car il s'agit de matchs en plus, normalement l'eleve a déja été ajouté
 					
 					System.out.println("match bis") ;
