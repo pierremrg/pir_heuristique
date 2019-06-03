@@ -295,7 +295,7 @@ public class GUI {
 		btnCreerMatchs = new JButton("2. Cr\u00E9er les matchs");
 		btnCreerMatchs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				readFromJSON(null);
+//				readFromJSON(null);
 				actCreateMatches();
 			}
 		});
@@ -857,8 +857,8 @@ public class GUI {
 		JSONParser parser = new JSONParser();
 		JSONObject obj = null;
 		try {
-			obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
-//			obj = (JSONObject) parser.parse(new FileReader(playersFile));
+//			obj = (JSONObject) parser.parse(new FileReader("./donnees_eleves.json"));
+			obj = (JSONObject) parser.parse(new FileReader(playersFile));
 		} catch (IOException | ParseException e) {
 			displayPopUp("Le fichier de données est incorrect.\n"
 					+ "Il est préférable de toujours utiliser l'application web pour le générer.",

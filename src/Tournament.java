@@ -139,16 +139,21 @@ public class Tournament {
 			for(int i=0; i<classesNumber; i++) {
 				classPlayersId[i] = new ArrayList<Integer>();
 			}
-			for (Player p : players) {
-	//			System.out.println("test: " + p.getClasseId());
-				classPlayersId[p.getClasseId()].add(p.getId());
+			//////////////////////////
+//			for (Player p : players) {
+//	//			System.out.println("test: " + p.getClasseId());
+//				classPlayersId[p.getClasseId()].add(p.getId());
+//			}
+			for(int i=0; i<playersNumber; i++) {
+				classPlayersId[players.get(i).getClasseId()].add(i);
 			}
+			/////////////////
 			for(int i=0; i < classesNumber; i++) {
 				classeSize.add(classPlayersId[i].size());
 			}
 			
-			if(canFightSamePlayerTwice != CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE)
-				sortPlayers();
+//			if(canFightSamePlayerTwice != CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE)
+//				sortPlayers();
 			
 			// createPlayers();
 			
@@ -254,7 +259,7 @@ public class Tournament {
 //			
 ////			System.out.println(possibleOpponents.toString());
 ////			System.out.println(allPlayersIds.toString());
-//		}m
+//		}
 		
 		
 		for(int i=0; i<playersNumber; i++) {
@@ -573,7 +578,9 @@ public class Tournament {
 						
 						roundOK = true;
 					}
-					else if(canFightSamePlayerTwice == CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE && loopCount > MAX_TRIES/4) {
+					else if(canFightSamePlayerTwice == CAN_FIGHT_SAME_PLAYER_TWICE_ALREADY_DONE && loopCount > MAX_TRIES/4) { 
+						
+						System.out.println(loopCount);
 						
 //						if(loopCount % 1 == 0)
 //							System.out.println(i + " " + advId + " " + matches[i][advId]);
