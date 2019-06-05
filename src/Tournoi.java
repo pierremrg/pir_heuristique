@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.itextpdf.text.BaseColor;
+
 public class Tournoi 
 {
 	private String nom ;
@@ -47,16 +49,25 @@ public class Tournoi
 	public Eleve getEleveFromId(int id)
 	{
 		Iterator<Classe> it = this.listeClasse.iterator() ;
+		int idClasse =0; //
 		while(it.hasNext())
 		{
 			Classe c = it.next();
+			
+			if (c.getId()>idClasse) {//
+				idClasse = c.getId();//
+			}//
 			Eleve e = c.getEleveFromId(id);
 			if(e!=null)
 			{
 				return e ;
 			}
 		}
-		return null ;
+		Classe nc = new Classe(idClasse+1, "Complement", new BaseColor(200, 200, 200));//
+		Eleve ne = new Eleve(id,"Complement",nc.getId(),-1);
+		nc.addEleve(ne);//
+		listeClasse.add(nc);//
+		return ne ;
 	}
 	public int getNbEleves()
 	{
@@ -188,10 +199,18 @@ public class Tournoi
 						// on recupere l'id des players associés à cette case
 						int id1 = t.getPlayers().get(j).getId() ;
 						int id2 = t.getPlayers().get(k).getId() ;
-						
+							
 						// on recupere les eleves grace aux id
 						Eleve e1 = this.getEleveFromId(id1) ;
 						Eleve e2 = this.getEleveFromId(id2) ;
+						
+						//AJOUT MAXENCE %TODO : refaire ca a un endroit plus propre... Mais seul endroit ou lit tournament
+						if (t.getLevel() != e1.getNiveau()) {
+							e1.setNiveau(t.getLevel());
+						}
+						if (t.getLevel() != e2.getNiveau()) {
+							e2.setNiveau(t.getLevel());
+						}
 						
 						// on ajoute au groupe couleur
 						if(j%2==0 && !dansGroupCoul1(e1))

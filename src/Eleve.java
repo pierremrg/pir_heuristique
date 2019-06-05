@@ -31,6 +31,9 @@ public class Eleve
 	{
 		return this.niveau ;
 	}
+	public void setNiveau(int niv) {
+		this.niveau = niv;
+	}
 
 
 }

@@ -968,4 +968,8 @@ public class Tournament {
 		return this.classesNumber;
 	}
 	
+	public int getLevel() {
+		return level;
+	}
+	
 }

@@ -24,6 +24,8 @@ import java.util.Date;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -52,6 +54,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import java.awt.Component;
 import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
 
 
 public class GUI {
@@ -635,11 +638,233 @@ public class GUI {
 		
 		writeConsole("Les joueurs ont correctement été chargés.");
 	}
+void oddTournamentHandler() { //%TODO
+
+		
+		//trouver qui est odd
+		boolean odd1 = false,odd2 = false,odd3 =false;
+		ArrayList<ArrayList<Player>> lOdd = new ArrayList<ArrayList<Player>>();
+		
+		//intOdd contient les numeros des tournois qui sont odd
+		int[] intOdd = new int[3];
+		int indIntOdd =0; //auxiliaire, pas important
+		
+		if (players1.size()%2 != 0) {
+			odd1 = true;
+			lOdd.add(players1);
+			System.out.println("t1 impair");
+			intOdd[indIntOdd]=1;
+			indIntOdd++;
+		}
+		if (players2.size()%2 != 0) {
+			odd2 = true;
+			lOdd.add(players2);
+			System.out.println("t2 impair");
+			intOdd[indIntOdd]=2;
+			indIntOdd++;
+		}
+		if (players3.size()%2 != 0) {
+			odd3 = true;
+			lOdd.add(players3);
+			System.out.println("t3 impair");
+			intOdd[indIntOdd]=3;
+			indIntOdd++;
+		}
+		
+		if (lOdd.size()!=0) { // s'il y a des impairs...
+			
+			JDialog frame = new JDialog();
+			frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+			
+			//creation du string et de son label pour la fenetre/////////////////////////////
+			String texteLabel = "Les niveaux ";		
+			for (int i=0;i<lOdd.size();i++) {
+				texteLabel = texteLabel + intOdd[i];
+				if (i!=lOdd.size()) {
+					texteLabel = texteLabel + " ,";
+				}
+			}
+			texteLabel = texteLabel + " ont un nombre de joueurs impair.";
+			JLabel label1 = new JLabel(texteLabel);
+			frame.add(label1);
+			
+			//preparation d'un tableau contenant des tableaux de string contenant des strings decrivant les joueurs de chaque tournoi
+			ArrayList<ArrayList<Player>> tabListePlayers = new ArrayList<ArrayList<Player>>();
+			tabListePlayers.add(players1);
+			tabListePlayers.add(players2);
+			tabListePlayers.add(players3);
+			
+			String[][] tabNoms = new String[3][];
+			tabNoms[0] = new String[players1.size()];
+			int ind =0;
+			for (Player p : players1) {
+				tabNoms[0][ind]=p.getNom() + " de la classe " + p.getClasseId();
+				ind++;
+			}
+			
+			tabNoms[1] = new String[players2.size()];
+			ind =0;
+			for (Player p : players2) {
+				tabNoms[1][ind]=p.getNom() + " de la classe " + p.getClasseId();
+				ind++;
+			}
+			
+			tabNoms[2] = new String[players3.size()];
+			ind =0;
+			for (Player p : players3) {
+				tabNoms[2][ind]=p.getNom() + " de la classe " + p.getClasseId();
+				ind++;
+			}
+			
+			// affichage fenetre pour ajouter un joueur
+			if (lOdd.size() == 1) { 
+				String textButton = "Ajouter un joueur Complément au tournoi pour équilibrer" + intOdd[0];
+				JButton button1 = new JButton(textButton);
+				frame.add(button1);
+				button1.addActionListener(new ActionListener(){
+					int t = intOdd[0];
+					public void actionPerformed(ActionEvent e) {
+					playerAdder(t);
+					frame.setVisible(false);
+					}
+				});
+			}
+			
+			// affichage fenetre pour bouger un joueur
+			else if (lOdd.size()==2) { 
+				String[] stab1 = new String[lOdd.size()]; //selection de tournoi de qui le joueur part
+				String[] stab2 = new String[lOdd.size()]; //selection de tournoi vers qui le joueur part
+				
+				for (int i=0;i<lOdd.size();i++) {
+					stab1[i]= "Prendre un élève du niveau " + intOdd[i];
+					stab2[i]= "pour le placer au niveau " + intOdd[i];
+				}
+				
+				JComboBox<String> cbniv1 = new JComboBox<String>(stab1); //selection de tournoi de qui le joueur part
+				JComboBox<String> cbniv2 = new JComboBox<String>(stab2); //selection de tournoi vers qui le joueur part
+				JComboBox<String> cbelv = new JComboBox<String>(tabNoms[intOdd[cbniv1.getSelectedIndex()]-1]); //selection du joueur qui part
+				
+				cbniv1.addActionListener(new ActionListener() {
+					int currInd = cbniv1.getSelectedIndex();
+					public void actionPerformed(ActionEvent e) {
+						int indexcb1 =cbniv1.getSelectedIndex();
+						if (indexcb1!=currInd) {
+							currInd = indexcb1;
+							// permet de changer les valeurs de la selection de joueur 
+							cbelv.setModel(new DefaultComboBoxModel<String>(tabNoms[intOdd[indexcb1]-1]));	
+						}
+					}
+				});
+				
+				JButton buttonConfirm = new JButton("Confirmer le changement");
+						buttonConfirm.addActionListener(new ActionListener(){
+							public void actionPerformed(ActionEvent e) {
+								int ind1 = cbniv1.getSelectedIndex();
+								int ind2 = cbniv2.getSelectedIndex();
+								int indNiveau = intOdd[ind1];
+								ArrayList<Player> alp1 = null;
+								if(ind1!= ind2) {
+									if (indNiveau==1) {
+										alp1=players1;
+									}
+									else if (indNiveau==2) {
+										alp1=players2;
+									}
+									else if (indNiveau==3) {
+										alp1=players3;
+									}
+									else {
+										System.out.println("oddTournamentHandler erreur 8");
+									}
+									playerMover(intOdd[ind1],intOdd[ind2],alp1.get(cbelv.getSelectedIndex()));
+									frame.setVisible(false);
+								}
+								else {
+									displayPopUp("Le niveau d'où vient l'élève doit être différent de celui ou il finit","Attention",JOptionPane.WARNING_MESSAGE);
+								}
+							}
+						});
+					frame.add(cbniv1);
+					frame.add(cbniv2);
+					frame.add(cbelv);
+					frame.add(buttonConfirm);
+				}
+			
+			frame.setLayout(new FlowLayout());
+			frame.pack();
+			frame.setModal(true);
+			frame.setVisible(true);
+		}
+	}
+	
+	void playerMover(int l1, int l2, Player e) {//gros nom
+		ArrayList<Player> alp1 = null;
+		ArrayList<Player> alp2 = null;
+		
+		if (l1==1) {
+			alp1=players1;
+		}
+		else if (l1==2) {
+			alp1=players2;
+		}
+		else if (l1==3) {
+			alp1=players3;
+		}
+		else {
+			System.out.println("probleme arguments playerMover");
+		}
+		if (l2==1) {
+			alp2=players1;
+		}
+		else if (l2==2) {
+			alp2=players2;
+		}
+		else if (l2==3) {
+			alp2=players3;
+		}
+		else {
+			System.out.println("probleme arguments playerMover");
+		}
+		alp1.remove(e);
+		alp2.add(e);
+	}
+	
+	void playerAdder(int tournoi) {
+		
+		//trouver le dernier id joueur et le dernier id classse pour plus tard
+		int idc=0,idp=0;
+		
+		for (Player p:allPlayers) {
+			if (p.getId()>idp) {
+				idp = p.getId();
+			}
+			if (p.getClasseId()>idc) {
+				idc = p.getClasseId();
+			}
+		}
+		ArrayList<Player> lp;
+		if(tournoi == 1) {
+			lp = players1;
+		}
+		else if(tournoi == 2) {
+			lp = players2;
+		}
+		else if(tournoi == 3) {
+			lp = players3;
+		}
+		else {
+			System.out.println("bug ajout joueur");
+			return;
+		}
+		lp.add(new Player(idp+1, idc+1, "Complement")); 
+	}
+	
 	
 	void actCreateMatches() {
 		
 		try {
 			progress = 0;
+			oddTournamentHandler();
 			initTournaments();
 			
 //			WaitThread waitThread = new WaitThread(this);

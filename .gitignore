@@ -1,1 +1,10 @@
 /.metadata/
+bin/.classpath
+bin/.project
+bin/donnees_eleves.json
+pdf/FicheProf.pdf
+pdf/FichesEleves.pdf
+pdf/ListeClasses.pdf
+pdf/ListeMatches.pdf
+pdf/ListeNiveaux.pdf
+pdf/FicheProf.pdf
