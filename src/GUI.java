@@ -90,8 +90,11 @@ public class GUI {
 	
 	// Matchs gardés (meilleures solutions)
 	int matches1[][];
+	int otherMatches1[][];
 	int matches2[][];
+	int otherMatches2[][];
 	int matches3[][];
+	int otherMatches3[][];
 	
 	// Joueurs
 	private static ArrayList<Player> allPlayers = new ArrayList<>();
@@ -113,6 +116,32 @@ public class GUI {
 	
 	final boolean saveSolution = false;
 	
+	public void testPrintMatchs(int[][] matchs, ArrayList<Player> lp) {
+		for (int l =0;l<matchs.length;l++) {
+			System.out.print("l " + l + " p " +  lp.get(l).getId()+ "  ");
+			for (int c=0;c<matchs[l].length;c++) {
+				System.out.print(" | " + lp.get(c).getId()+ " / " + 	matchs[l][c]);
+			}
+			System.out.println();
+		}
+	}
+	
+	public void testPrintOtherMatchs(int[][] matchs, ArrayList<Player> lp) {
+		for (int l =0;l<matchs.length;l++) {
+			System.out.print("l " + l + " p " +  lp.get(l).getId()+ "  ");
+			for (int c=0;c<matchs[l].length;c++) {
+				if (matchs[l][c] != -1) {
+					System.out.print(" | " +(c+1) + " / " + 	lp.get(matchs[l][c]).getId());
+					//System.out.print(" | " +(c+1) + " / " + 	matchs[l][c]);
+				}
+				else {
+					System.out.print(" | " + (c+1) + " " + 	matchs[l][c]);
+				}
+				
+			}
+			System.out.println();
+		}
+	}
 	
 	public int getProgress() {
 		return Math.min(100, Math.round(progress));
@@ -943,14 +972,17 @@ void oddTournamentHandler() { //%TODO
 			// Calcul des meilleures solutions
 			boolean foundMatches1 = tournament1.createMatches();
 			matches1 = tournament1.getMatches();
+			otherMatches1 = tournament1.getOtherMatches();
 			float bestScore1 = tournament1.getSolutionScore(minClassesNumber);
 			
 			boolean foundMatches2 = tournament2.createMatches();
 			matches2 = tournament2.getMatches();
+			otherMatches2 = tournament2.getOtherMatches();
 			float bestScore2 = tournament2.getSolutionScore(minClassesNumber);
 			
 			boolean foundMatches3 = tournament3.createMatches();
 			matches3 = tournament3.getMatches();
+			otherMatches3 = tournament3.getOtherMatches();
 			float bestScore3 = tournament3.getSolutionScore(minClassesNumber);
 			
 			for(int i=1; i < (Integer) spinner.getValue(); i++) {
@@ -965,6 +997,7 @@ void oddTournamentHandler() { //%TODO
 				float score1 = tournament1.getSolutionScore(minClassesNumber);
 				if(score1 > bestScore1) {
 					matches1 = tournament1.getMatches();
+					otherMatches1 = tournament1.getOtherMatches();
 					bestScore1 = score1;
 				}
 
@@ -976,6 +1009,7 @@ void oddTournamentHandler() { //%TODO
 				float score2 = tournament2.getSolutionScore(minClassesNumber);	
 				if(score2 > bestScore2) {
 					matches2 = tournament2.getMatches();
+					otherMatches2 = tournament2.getOtherMatches();
 					bestScore2 = score2;
 				}
 				
@@ -987,6 +1021,7 @@ void oddTournamentHandler() { //%TODO
 				float score3 = tournament3.getSolutionScore(minClassesNumber);
 				if(score3 > bestScore3) {
 					matches3 = tournament3.getMatches();
+					otherMatches3 = tournament3.getOtherMatches();
 					bestScore3 = score3;
 				}
 				
@@ -1023,6 +1058,7 @@ void oddTournamentHandler() { //%TODO
 			
 			
 			displayMatchsTable(); // TODO à supprimer
+
 		}
 		catch(Tournament.OddClassException e) {
 			displayPopUp("Le nombre de joueurs dans le groupe de niveau " + e.getLevel() + " est impair.\n"
@@ -1076,19 +1112,20 @@ void oddTournamentHandler() { //%TODO
 		//---------------  ajoute les rounds
 		tournoi.addNbRound(tournament1);
 		
-		tournament1.setMatches(matches1);
+		tournament1.setMatches(matches1,otherMatches1);
 		tournoi.addAllRoundNiv(tournament1, 1);
 		
-		tournament2.setMatches(matches2);
+		tournament2.setMatches(matches2,otherMatches2);
 		tournoi.addAllRoundNiv(tournament2, 2);
 		
-		tournament3.setMatches(matches3);
+		tournament3.setMatches(matches3,otherMatches3);
 		tournoi.addAllRoundNiv(tournament3, 3);
-		
 		
 		// -------------- ajoute les tables
 		tournoi.addTables() ;
+		
 
+		
 		try{
 			PDFGen.createPDF(tournoi);
 
@@ -1102,6 +1139,22 @@ void oddTournamentHandler() { //%TODO
 		}
 	}
 	
+	void afficheTournoi(Tournoi t) {
+		ArrayList<Eleve>le =t.getGroupeCouleur1();
+		
+		for (Eleve e : le) {
+			System.out.println();
+			System.out.print("elv : " + e.getId());
+			for (Round r : t.getRounds()) {
+				System.out.print(" | r" + r.getId());
+				for (Match m : r.getMatches()) {
+					if (m.getEleve1().equals(e) || m.getEleve2().equals(e)) {
+						System.out.print( " " + m.getEleve1().getId() + "x" + m.getEleve2().getId());
+					}
+				}
+			}
+		}
+	}
 	void writeConsole(String message) {
 		
 		// Format de la date

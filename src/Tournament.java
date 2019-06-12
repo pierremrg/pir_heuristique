@@ -947,8 +947,9 @@ public class Tournament {
 		return matches;
 	}
 	
-	public void setMatches(int[][] matches) {
+	public void setMatches(int[][] matches, int[][] oM) {
 		this.matches = matches;
+		this.otherMatches = oM;
 	}
 	
 	public int[][] getOtherMatches(){

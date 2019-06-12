@@ -67,6 +67,7 @@ public class Tournoi
 		Eleve ne = new Eleve(id,"Complement",nc.getId(),-1);
 		nc.addEleve(ne);//
 		listeClasse.add(nc);//
+		System.out.println("ajout elv dans pdf");
 		return ne ;
 	}
 	public int getNbEleves()
@@ -155,13 +156,6 @@ public class Tournoi
 		}
 	}
 	
-	public boolean matchExists(Eleve e1, Eleve e2, int round)
-	{
-		Round r = this.listeRound.get(round-1);
-		return r.matchExists(e1, e2) ;
-
-	}
-	
 	public boolean dansGroupCoul1(Eleve e)
 	{
 		Iterator<Eleve> it = this.groupeCouleur1.iterator() ;
@@ -174,6 +168,13 @@ public class Tournoi
 			}
 		}
 		return false ;
+	}
+
+	public boolean matchExists(Eleve e1, Eleve e2, int round)
+	{
+		Round r = this.listeRound.get(round-1);
+		return r.matchExists(e1, e2) ;
+
 	}
 	
 	// ajoute tous les matches en parcourant les 2 tableaux, pour 1 niveau
@@ -249,7 +250,7 @@ public class Tournoi
 					// on recupere l'id des players associés à cette case
 					int id1 = t.getPlayers().get(l).getId() ;
 					int id2 = t.getPlayers().get(adv).getId() ;
-	
+					
 					// on recupere les eleves grace aux id
 					Eleve e1 = this.getEleveFromId(id1) ;
 					Eleve e2 = this.getEleveFromId(id2) ;
@@ -267,7 +268,7 @@ public class Tournoi
 					{
 						// a l'ajoute
 						this.listeRound.get(i-1).addMatch(new Match(e1,e2,i));
-						System.out.println("ajout other match" + e1.getId()+" vs "+e2.getId()) ;
+						System.out.println("ajout other match" + e1.getId()+" vs "+e2.getId() + "pour round" + i ) ;
 					}			
 				}	
 			}
