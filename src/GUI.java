@@ -789,6 +789,72 @@ void oddTournamentHandler() { //%TODO
 					frame.add(cbelv);
 					frame.add(buttonConfirm);
 				}
+			else if (lOdd.size()==3) {
+				
+			
+				String[] stabAdd = new String [3]; //tournoi ou on ajoute joueur complément
+				String[] stab1 = new String[3]; //selection de tournoi de qui le joueur part
+				String[] stab2 = new String[3]; //selection de tournoi vers qui le joueur part
+				
+				for (int i=0;i<3;i++) {
+					stabAdd[i] = "Ajouter un élève de complément dans le niveau" + (i+1);
+					stab1[i]= "Prendre un élève du niveau " + i;
+					stab2[i]= "pour le placer au niveau " + i;
+				}
+				
+				JComboBox<String> cbAdd = new JComboBox<String>(stabAdd);
+				JComboBox<String> cbniv1 = new JComboBox<String>(stab1); //selection de tournoi de qui le joueur part
+				JComboBox<String> cbniv2 = new JComboBox<String>(stab2); //selection de tournoi vers qui le joueur part
+				JComboBox<String> cbelv = new JComboBox<String>(tabNoms[intOdd[cbniv1.getSelectedIndex()]-1]); //selection du joueur qui part
+				
+				cbniv1.addActionListener(new ActionListener() {
+					int currInd = cbniv1.getSelectedIndex();
+					public void actionPerformed(ActionEvent e) {
+						int indexcb1 =cbniv1.getSelectedIndex();
+						if (indexcb1!=currInd) {
+							currInd = indexcb1;
+							// permet de changer les valeurs de la selection de joueur 
+							cbelv.setModel(new DefaultComboBoxModel<String>(tabNoms[intOdd[indexcb1]-1]));	
+						}
+					}
+				});
+				
+				JButton buttonConfirm = new JButton("Confirmer le changement");
+						buttonConfirm.addActionListener(new ActionListener(){
+							public void actionPerformed(ActionEvent e) {
+								int indAdd = cbAdd.getSelectedIndex();
+								int ind1 = cbniv1.getSelectedIndex();
+								int ind2 = cbniv2.getSelectedIndex();
+								int indNiveau = intOdd[ind1];
+								ArrayList<Player> alp1 = null;
+								if(ind1!= ind2 && ind1 != indAdd && ind2 != indAdd) {
+									if (indNiveau==1) {
+										alp1=players1;
+									}
+									else if (indNiveau==2) {
+										alp1=players2;
+									}
+									else if (indNiveau==3) {
+										alp1=players3;
+									}
+									else {
+										System.out.println("oddTournamentHandler erreur 8");
+									}
+									playerMover(intOdd[ind1],intOdd[ind2],alp1.get(cbelv.getSelectedIndex()));
+									playerAdder(indAdd +1);
+									frame.setVisible(false);
+								}
+								else {
+									displayPopUp("Le niveau d'où vient l'élève doit être différent de celui ou il finit","Attention",JOptionPane.WARNING_MESSAGE);
+								}
+							}
+						});
+						frame.add(cbAdd);
+					frame.add(cbniv1);
+					frame.add(cbniv2);
+					frame.add(cbelv);
+					frame.add(buttonConfirm);				
+			}
 			
 			frame.setLayout(new FlowLayout());
 			frame.pack();
