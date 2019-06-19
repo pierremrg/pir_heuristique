@@ -705,17 +705,30 @@ void oddTournamentHandler() { //%TODO
 			JDialog frame = new JDialog();
 			frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			
+			GridBagLayout gl = new GridBagLayout();
+			int[] heights = { 50,50,50,50};
+			gl.rowHeights = heights;
+			//gl.setColumns(2);
+			//gl.setRows(4);
+			frame.setLayout(gl);
+			GridBagConstraints c = new GridBagConstraints();
+			c.fill = GridBagConstraints.BOTH;
+
+			
 			//creation du string et de son label pour la fenetre/////////////////////////////
 			String texteLabel = "Les niveaux ";		
 			for (int i=0;i<lOdd.size();i++) {
 				texteLabel = texteLabel + intOdd[i];
-				if (i!=lOdd.size()) {
-					texteLabel = texteLabel + " ,";
+				if (i!=lOdd.size()-1) {
+					texteLabel = texteLabel + ", ";
 				}
 			}
 			texteLabel = texteLabel + " ont un nombre de joueurs impair.";
 			JLabel label1 = new JLabel(texteLabel);
-			frame.add(label1);
+			c.gridx = 0;
+			c.gridy=0;
+			c.gridwidth=2;
+			frame.add(label1,c);
 			
 			//preparation d'un tableau contenant des tableaux de string contenant des strings decrivant les joueurs de chaque tournoi
 			ArrayList<ArrayList<Player>> tabListePlayers = new ArrayList<ArrayList<Player>>();
@@ -747,9 +760,13 @@ void oddTournamentHandler() { //%TODO
 			
 			// affichage fenetre pour ajouter un joueur
 			if (lOdd.size() == 1) { 
-				String textButton = "Ajouter un joueur Complément au tournoi pour équilibrer" + intOdd[0];
+				String textButton = "Ajouter un joueur Complément au tournoi pour équilibrer le niveau " + intOdd[0];
 				JButton button1 = new JButton(textButton);
-				frame.add(button1);
+				c.gridx=0;
+				c.gridy=1;
+				c.gridwidth=2;
+				frame.add(button1,c);
+				frame.setSize(400, 200);
 				button1.addActionListener(new ActionListener(){
 					int t = intOdd[0];
 					public void actionPerformed(ActionEvent e) {
@@ -765,8 +782,8 @@ void oddTournamentHandler() { //%TODO
 				String[] stab2 = new String[lOdd.size()]; //selection de tournoi vers qui le joueur part
 				
 				for (int i=0;i<lOdd.size();i++) {
-					stab1[i]= "Prendre un élève du niveau " + intOdd[i];
-					stab2[i]= "pour le placer au niveau " + intOdd[i];
+					stab1[i]= "Prendre un élève du niveau " + (intOdd[i] + 1);
+					stab2[i]= "pour le placer au niveau " + (intOdd[i] +1);
 				}
 				
 				JComboBox<String> cbniv1 = new JComboBox<String>(stab1); //selection de tournoi de qui le joueur part
@@ -817,6 +834,29 @@ void oddTournamentHandler() { //%TODO
 					frame.add(cbniv2);
 					frame.add(cbelv);
 					frame.add(buttonConfirm);
+					
+					c.gridx = 0;
+					c.gridy=1;
+					c.gridwidth=1;
+					frame.add(cbniv1,c);
+					c.gridx = 1;
+					c.gridy=1;
+					frame.add(cbniv2,c);
+					
+					JLabel label2 = new JLabel("L'élève déplacé sera :");
+					c.gridx = 0;
+					c.gridy=2;
+					c.gridwidth=1;
+					frame.add(label2,c);
+					c.gridx = 1;
+					c.gridy=2;
+					c.gridwidth=1;
+					frame.add(cbelv,c);
+					c.gridx = 0;
+					c.gridy=3;
+					c.gridwidth=2;
+					frame.add(buttonConfirm,c);
+					frame.setSize(400, 400);
 				}
 			else if (lOdd.size()==3) {
 				
@@ -827,8 +867,8 @@ void oddTournamentHandler() { //%TODO
 				
 				for (int i=0;i<3;i++) {
 					stabAdd[i] = "Ajouter un élève de complément dans le niveau" + (i+1);
-					stab1[i]= "Prendre un élève du niveau " + i;
-					stab2[i]= "pour le placer au niveau " + i;
+					stab1[i]= "Prendre un élève du niveau " + (i+1);
+					stab2[i]= "pour le placer au niveau " + (i + 1);
 				}
 				
 				JComboBox<String> cbAdd = new JComboBox<String>(stabAdd);
@@ -874,19 +914,41 @@ void oddTournamentHandler() { //%TODO
 									frame.setVisible(false);
 								}
 								else {
-									displayPopUp("Le niveau d'où vient l'élève doit être différent de celui ou il finit","Attention",JOptionPane.WARNING_MESSAGE);
+									displayPopUp("Le niveau d'où vient l'élève doit être différent de celui ou il finit, et le joueur de complément ajouté dans un niveau encore différent.","Attention",JOptionPane.WARNING_MESSAGE);
 								}
 							}
 						});
-						frame.add(cbAdd);
-					frame.add(cbniv1);
-					frame.add(cbniv2);
-					frame.add(cbelv);
-					frame.add(buttonConfirm);				
+
+
+					c.gridx = 0;
+					c.gridy=1;
+					c.gridwidth=2;
+					frame.add(cbAdd,c);
+					c.gridx = 0;
+					c.gridy=2;
+					c.gridwidth=1;
+					frame.add(cbniv1,c);
+					c.gridx = 1;
+					c.gridy=2;
+					frame.add(cbniv2,c);
+					
+					JLabel label2 = new JLabel("L'élève déplacé sera :");
+					c.gridx = 0;
+					c.gridy=3;
+					c.gridwidth=1;
+					frame.add(label2,c);
+					c.gridx = 1;
+					c.gridy=3;
+					c.gridwidth=1;
+					frame.add(cbelv,c);
+					c.gridx = 0;
+					c.gridy=4;
+					c.gridwidth=2;
+					frame.add(buttonConfirm,c);
+					frame.setSize(400, 400);
 			}
+
 			
-			frame.setLayout(new FlowLayout());
-			frame.pack();
 			frame.setModal(true);
 			frame.setVisible(true);
 		}
