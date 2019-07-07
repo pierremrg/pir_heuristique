@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -1013,7 +1014,10 @@ void oddTournamentHandler() { //%TODO
 			System.out.println("bug ajout joueur");
 			return;
 		}
-		lp.add(new Player(idp+1, idc+1, "Complement")); 
+		Random randomGenerator = new Random();
+		int randomInt = randomGenerator.nextInt(idc);
+		//lp.add(new Player(idp+1, idc+1, "Complement")); 
+		lp.add(new Player(idp+1,randomInt,"Complement"));
 	}
 	
 	
