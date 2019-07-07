@@ -63,12 +63,14 @@ public class Tournoi
 				return e ;
 			}
 		}
-		Classe nc = new Classe(idClasse+1, "Complement", new BaseColor(200, 200, 200));//
+		// TODO Ajout max pas propre
+		/*Classe nc = new Classe(idClasse+1, "Complement", new BaseColor(200, 200, 200));//
 		Eleve ne = new Eleve(id,"Complement",nc.getId(),-1);
 		nc.addEleve(ne);//
 		listeClasse.add(nc);//
 		System.out.println("ajout elv dans pdf");
-		return ne ;
+		return ne ;*/
+		return null;
 	}
 	public int getNbEleves()
 	{
@@ -93,6 +95,11 @@ public class Tournoi
 			}
 		}
 		return null ;
+	}
+	
+	public void addComplement(int idclasse,int ideleve, int niveau) {
+		Classe cl = getClasseFromId(idclasse);
+		cl.addEleve(new Eleve(ideleve,"Complement", idclasse, niveau));
 	}
 	public ArrayList<ArrayList<Eleve>> getGroupeNiveau(int niv)
 	{
@@ -206,12 +213,12 @@ public class Tournoi
 						Eleve e2 = this.getEleveFromId(id2) ;
 						
 						//AJOUT MAXENCE %TODO : refaire ca a un endroit plus propre... Mais seul endroit ou lit tournament
-						if (t.getLevel() != e1.getNiveau()) {
+						/*if (t.getLevel() != e1.getNiveau()) {
 							e1.setNiveau(t.getLevel());
 						}
 						if (t.getLevel() != e2.getNiveau()) {
 							e2.setNiveau(t.getLevel());
-						}
+						}*/
 						
 						// on ajoute au groupe couleur
 						if(j%2==0 && !dansGroupCoul1(e1))

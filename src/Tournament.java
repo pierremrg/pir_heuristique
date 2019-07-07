@@ -54,6 +54,8 @@ public class Tournament {
 	private ArrayList<Integer>[] classPlayersId;
 	private ArrayList<Integer>[] possibleOpponentsId;
 	
+
+	
 	// Exception pour les groupes impairs
 	@SuppressWarnings("serial")
 	public static class OddClassException extends Exception {
@@ -168,6 +170,7 @@ public class Tournament {
 		
 		// Scores
 		scores = new int[playersNumber];
+		
 		
 		// Amélioration
 //		this.forgotten_percent = forgotten_percent;

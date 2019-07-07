@@ -112,6 +112,11 @@ public class GUI {
 	
 	private float progress = 0;
 	
+	// SI AJOUT D ELEVE CAR NOMBRE IMPAIR
+	private int addplayerid;
+	private int addclassid;
+	private int addlevel;
+	
 //	private static final float FORGOTTEN_PERCENT = (float) 30/100;
 //	private static final int FORGET_TURNS_NUMBER = 0;
 	
@@ -622,6 +627,8 @@ public class GUI {
 		});
 		mnAide.add(mntmPropos);
 		
+
+		
 //		tournament.setGUI(this);
 	}
 	
@@ -665,6 +672,11 @@ public class GUI {
 		lblMatchsDeNiveau1.setEnabled(true);
 		lblMatchsDeNiveau2.setEnabled(true);
 		lblMatchsDeNiveau3.setEnabled(true);
+		
+		addplayerid = -1;
+		addclassid= -1;
+		addlevel = -1;
+		
 		
 		writeConsole("Les joueurs ont correctement été chargés.");
 	}
@@ -1018,6 +1030,10 @@ void oddTournamentHandler() { //%TODO
 		int randomInt = randomGenerator.nextInt(idc);
 		//lp.add(new Player(idp+1, idc+1, "Complement")); 
 		lp.add(new Player(idp+1,randomInt,"Complement"));
+		
+		addplayerid = idp+1;
+		addclassid= randomInt;
+		addlevel = tournoi;
 	}
 	
 	
@@ -1173,6 +1189,9 @@ void oddTournamentHandler() { //%TODO
 		
 //		String path = "./donnees_eleves.json"; // remplacé par playersFile (qui est le fichier chargé au début)
 		Tournoi tournoi = JSONExtractor.ExtractJSON(playersFile);
+		if (addplayerid !=-1) {
+			tournoi.addComplement(addclassid, addplayerid, addlevel);
+		}
 		
 		
 		//---------------  ajoute les rounds
